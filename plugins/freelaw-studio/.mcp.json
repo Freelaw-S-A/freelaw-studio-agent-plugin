@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "freelaw-studio": {
+      "type": "streamable-http",
+      "url": "https://app.freelaw.ai/api/agent/mcp"
+    }
+  }
+}

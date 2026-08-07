@@ -1,0 +1,20 @@
+{
+  "name": "freelaw-studio",
+  "interface": {
+    "displayName": "Freelaw Studio"
+  },
+  "plugins": [
+    {
+      "name": "freelaw-studio",
+      "source": {
+        "source": "local",
+        "path": "./plugins/freelaw-studio"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

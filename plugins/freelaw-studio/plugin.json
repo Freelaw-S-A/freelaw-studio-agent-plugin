@@ -1,0 +1,20 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "freelaw-studio",
+  "version": "0.1.0",
+  "description": "Client-facing Freelaw Studio guidance for legal workflows through the public API and MCP.",
+  "author": {
+    "name": "Freelaw",
+    "url": "https://github.com/Freelaw-S-A"
+  },
+  "homepage": "https://freelaw.ai/developers",
+  "repository": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
+  "keywords": ["freelaw", "studio", "legal-tech", "api", "mcp", "client"],
+  "extensions": {
+    "org.freelaw.agent-plugins": {
+      "audience": "client",
+      "products": ["studio"],
+      "accessControl": "host-managed"
+    }
+  }
+}
