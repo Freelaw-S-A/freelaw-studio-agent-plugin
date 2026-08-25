@@ -1,6 +1,6 @@
 {
   "name": "freelaw-studio",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Freelaw Studio guidance for client-facing legal workflows through the public API and MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -8,23 +8,37 @@
   },
   "homepage": "https://freelaw.ai/developers",
   "repository": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
-  "keywords": ["freelaw", "studio", "legal-tech", "api", "mcp", "client"],
+  "keywords": [
+    "freelaw",
+    "studio",
+    "legal-tech",
+    "api",
+    "mcp",
+    "client",
+    "grok",
+    "gemini"
+  ],
   "skills": "./skills/",
   "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "Freelaw Studio",
     "shortDescription": "Studio para clientes e equipes jurídicas.",
-    "longDescription": "Conecta agentes ao Freelaw Studio com API pública, MCP remoto e instruções para descoberta segura, escopos, idempotência e acompanhamento de fluxos.",
+    "longDescription": "Conecta agentes ao Freelaw Studio com API pública, MCP remoto e instruções para descoberta segura, escopos, idempotência e acompanhamento de fluxos em Grok, Gemini, Claude e Codex.",
     "developerName": "Freelaw",
     "category": "Productivity",
-    "capabilities": ["API integration", "MCP integration", "Agent guidance"],
+    "capabilities": [
+      "API integration",
+      "MCP integration",
+      "Agent guidance"
+    ],
     "websiteURL": "https://freelaw.ai/developers",
     "privacyPolicyURL": "https://freelaw.ai/politica-de-privacidade",
     "termsOfServiceURL": "https://freelaw.ai/termos-de-uso",
     "defaultPrompt": [
-      "Conecte este agente ao Freelaw Studio pela API pública.",
+      "Conecte este agente ao Freelaw Studio pelo MCP OAuth. Não cole flk_ no chat.",
       "Descubra as ações e permissões do meu token Freelaw.",
       "Ajude a acompanhar este fluxo do Studio sem inventar IDs."
     ]
-  }
+  },
+  "commands": "./commands/"
 }

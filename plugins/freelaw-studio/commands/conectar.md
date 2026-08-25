@@ -1,0 +1,11 @@
+---
+description: Conectar este agente ao Freelaw Studio pelo MCP público.
+---
+
+Conecte ao Freelaw Studio.
+
+1. Use o MCP remoto https://app.freelaw.ai/api/agent/mcp.
+2. Complete OAuth 2.1 com PKCE no host. Não peça chave flk_ no chat.
+3. Chame office.permissions.describe e depois tools/list.
+4. Resuma o escritório autenticado, o papel, e o que o token pode ler ou escrever.
+5. Se a conexão falhar, reporte status HTTP, WWW-Authenticate e X-Correlation-ID sem vazar segredos.

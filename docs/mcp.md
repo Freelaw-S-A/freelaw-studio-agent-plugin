@@ -9,8 +9,23 @@ contract through Streamable HTTP.
 https://app.freelaw.ai/api/agent/mcp
 ```
 
-The package includes the ready-to-discover configuration in
-[`plugins/freelaw-studio/mcp.json`](../plugins/freelaw-studio/mcp.json):
+The package includes two ready-to-discover configurations. The server is
+the same Streamable HTTP endpoint; hosts disagree on the `type` string.
+
+Grok / Claude / Codex (`.mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "freelaw-studio": {
+      "type": "http",
+      "url": "https://app.freelaw.ai/api/agent/mcp"
+    }
+  }
+}
+```
+
+Agent Plugins / Cursor (`mcp.json`):
 
 ```json
 {
@@ -26,9 +41,11 @@ The package includes the ready-to-discover configuration in
 ## Credential handling
 
 The configuration intentionally has no secret. The MCP host must inject the
-authorized connection through OAuth or a protected secret store according to
-its own connection model. Never add `X-API-Key` to this file, a public prompt,
-or a committed environment file.
+authorized connection through OAuth 2.1 + PKCE (preferred) or a protected
+secret store. Discovery lives at
+`https://app.freelaw.ai/.well-known/oauth-protected-resource`. Never add
+`X-API-Key` to this file, a public prompt, or a committed environment file.
+Never paste `flk_` into chat.
 
 After connecting, the agent should:
 

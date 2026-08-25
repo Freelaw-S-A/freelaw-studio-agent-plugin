@@ -1,0 +1,11 @@
+---
+description: Gerar, acompanhar ou baixar uma petição no Freelaw Studio.
+---
+
+Trabalhe numa petição do Freelaw Studio. {{args}}
+
+1. Confirme a OS e que os documentos necessários já foram enviados.
+2. office.petitions.generate só depois da confirmação do usuário, com documentType initial_petition | defense | appeal | memo.
+3. Poll office.petitions.status com nextPollAfterSeconds.
+4. Baixe somente quando ready=true.
+5. Avise que a peça é rascunho e precisa de revisão profissional antes de protocolar.
