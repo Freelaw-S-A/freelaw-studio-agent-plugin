@@ -15,6 +15,11 @@ available.
 - Ask for missing business fields instead of fabricating IDs, dates, people, or
   catalog values.
 
+For legal or AI-generated work product, tell the user that the result requires review
+by a qualified legal professional before reliance, client delivery, filing, or
+finalization. The agent must disclose when AI contributed and must not make an
+autonomous high-impact legal decision.
+
 ## While acting
 
 - Use the smallest public action that satisfies the request.
