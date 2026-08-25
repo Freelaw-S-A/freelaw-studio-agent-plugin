@@ -1,0 +1,11 @@
+{
+  "name": "freelaw-studio",
+  "description": "Freelaw Studio workflows for organization-scoped legal operations through the public MCP surface.",
+  "version": "0.2.0",
+  "author": {
+    "name": "Freelaw S.A.",
+    "url": "https://freelaw.ai"
+  },
+  "homepage": "https://freelaw.ai/developers",
+  "repository": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin"
+}

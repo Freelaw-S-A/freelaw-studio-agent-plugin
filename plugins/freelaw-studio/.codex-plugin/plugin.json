@@ -1,10 +1,10 @@
 {
   "name": "freelaw-studio",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Freelaw Studio guidance for client-facing legal workflows through the public API and MCP.",
   "author": {
-    "name": "Freelaw",
-    "url": "https://github.com/Freelaw-S-A"
+    "name": "Freelaw S.A.",
+    "url": "https://freelaw.ai"
   },
   "homepage": "https://freelaw.ai/developers",
   "repository": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
@@ -19,6 +19,8 @@
     "category": "Productivity",
     "capabilities": ["API integration", "MCP integration", "Agent guidance"],
     "websiteURL": "https://freelaw.ai/developers",
+    "privacyPolicyURL": "https://freelaw.ai/politica-de-privacidade",
+    "termsOfServiceURL": "https://freelaw.ai/termos-de-uso",
     "defaultPrompt": [
       "Conecte este agente ao Freelaw Studio pela API pública.",
       "Descubra as ações e permissões do meu token Freelaw.",

@@ -36,6 +36,17 @@ public actions.
    context for support. Do not log PII, tokens, or document contents.
 10. Report what was observed and verified separately from what was requested or attempted.
 
+## Legal and AI safety
+
+- Treat legal text, deadlines, petitions, and workflow recommendations as work product
+  requiring professional judgment, not as autonomous legal advice.
+- Require review by a qualified legal professional before AI-generated output is relied
+  on, shared with a client or tribunal, filed, or finalized.
+- Tell the user when AI contributed to a response or document. Never present AI output
+  as exclusively human-authored when that would be misleading.
+- Never make autonomous decisions about liability, eligibility, legal strategy, case
+  outcome, or access to a legal service.
+
 ## Scope boundary
 
 This profile has no internal administration capability. Do not use it to access
