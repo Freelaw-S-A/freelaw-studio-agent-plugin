@@ -1,0 +1,21 @@
+{
+  "name": "freelaw-studio",
+  "description": "Public Freelaw Studio marketplace for Grok Build — office-scoped legal workflows via remote MCP.",
+  "owner": {
+    "name": "Freelaw S.A."
+  },
+  "plugins": [
+    {
+      "name": "freelaw-studio",
+      "description": "Connect Grok to a Freelaw Studio office: clients, processes, services, petitions, deadlines, and documents through the public MCP.",
+      "category": "productivity",
+      "source": {
+        "type": "local",
+        "path": "./plugins/freelaw-studio"
+      },
+      "homepage": "https://freelaw.ai/developers",
+      "keywords": ["freelaw", "studio", "legal", "mcp", "advocacia"],
+      "domains": ["freelaw.ai", "www.freelaw.ai", "app.freelaw.ai"]
+    }
+  ]
+}

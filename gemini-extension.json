@@ -1,0 +1,12 @@
+{
+  "name": "freelaw-studio",
+  "version": "0.3.0",
+  "description": "Freelaw Studio office workflows via public MCP (OAuth 2.1 PKCE).",
+  "mcpServers": {
+    "freelaw-studio": {
+      "httpUrl": "https://app.freelaw.ai/api/agent/mcp",
+      "oauth": { "enabled": true }
+    }
+  },
+  "contextFileName": "GEMINI.md"
+}

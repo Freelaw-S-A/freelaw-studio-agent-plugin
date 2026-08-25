@@ -1,0 +1,10 @@
+description = "Ler intimações e publicações do Freelaw Studio."
+prompt = """
+Trabalhe com publicações e intimações do Freelaw Studio. {{args}}
+
+1. office.publications.list / get para itens não lidos.
+2. markRead só com confirmação.
+3. createTask para virar trabalho interno.
+4. clientNotice só prepara o texto; nunca envia mensagem e nunca devolve telefone.
+5. Não encaminhe summary_markdown do advogado ao cliente.
+"""

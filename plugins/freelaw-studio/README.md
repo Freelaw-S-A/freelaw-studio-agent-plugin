@@ -1,7 +1,15 @@
 # Freelaw Studio
 
-Pacote cliente do Freelaw Studio. A skill e o MCP são públicos; credenciais,
-escopos e autorização ficam sob controle do host e do escritório autenticado.
+Pacote cliente do Freelaw Studio. Skills, comandos e MCP são públicos;
+credenciais, escopos e autorização ficam sob controle do host e do escritório
+autenticado.
+
+## Hosts
+
+- **Grok Build:** marketplace deste repositório, plugin `freelaw-studio`. `.mcp.json` usa `type: http`.
+- **Grok chat:** conector customizado `https://app.freelaw.ai/api/agent/mcp`.
+- **Gemini CLI:** `gemini extensions install` na raiz do repositório, ou `--path plugins/freelaw-studio`.
+- **Claude / Codex / Cursor:** MCP remoto; OAuth no host.
 
 ## Segurança e uso jurídico
 
@@ -14,7 +22,7 @@ escopos e autorização ficam sob controle do host e do escritório autenticado.
   de alto impacto. Um profissional jurídico habilitado deve revisar qualquer saída
   gerada por IA antes de ser usada, compartilhada, protocolada ou finalizada.
 - Informe ao usuário quando uma resposta ou documento tiver sido produzido com auxílio
-  de IA. Não apresente saída de IA como se fosse trabalho humano sem revisão.
+  de IA. Nunca apresente saída de IA como se fosse trabalho exclusivamente humano.
 
 Não envie dados reais de clientes para homologação. Use uma organização de teste com
 dados sintéticos e escopos mínimos.
