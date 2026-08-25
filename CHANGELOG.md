@@ -1,10 +1,16 @@
 # Changelog
 
+## 0.3.1 - 2026-08-25
+
+- LICENSE copied into `plugins/freelaw-studio/` so the xAI catalog pin is self-contained.
+- English reviewer README with explicit network endpoints, credentials, and host matrix.
+- Plugin-path `SECURITY.md`. Brand-scoped keywords (`freelaw`, `freelaw studio`, `freelaw mcp`).
+
 ## 0.3.0 - 2026-08-25
 
 - Grok Build marketplace (`.grok-plugin/`) and `.mcp.json` `type: http`.
 - Gemini CLI extension at repo root (`gemini-extension.json` + `GEMINI.md`) with OAuth enabled.
-- Skills for delegações, petições, processos, clientes, prazos, publicações and documentos.
+- Skills for delegacoes, peticoes, processos, clientes, prazos, publicacoes and documentos.
 - Slash commands: conectar, os, permissoes, peticao, prazos, intimacoes.
 - Dual MCP config: Agent Plugins `mcp.json` stays `streamable-http`; Grok/Claude/Codex `.mcp.json` uses `http`.
 
