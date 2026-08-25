@@ -7,14 +7,14 @@
   "plugins": [
     {
       "name": "freelaw-studio",
-      "description": "Connect Grok to a Freelaw Studio office: clients, processes, services, petitions, deadlines, and documents through the public MCP.",
+      "description": "Connect Grok to a Freelaw Studio law office: clients, processes, services (OS), petitions, deadlines, publications, and documents through the public MCP. Organization-scoped; OAuth 2.1 PKCE; no admin or Backstage access.",
       "category": "productivity",
       "source": {
         "type": "local",
         "path": "./plugins/freelaw-studio"
       },
       "homepage": "https://freelaw.ai/developers",
-      "keywords": ["freelaw", "studio", "legal", "mcp", "advocacia"],
+      "keywords": ["freelaw", "freelaw studio", "freelaw mcp"],
       "domains": ["freelaw.ai", "www.freelaw.ai", "app.freelaw.ai"]
     }
   ]

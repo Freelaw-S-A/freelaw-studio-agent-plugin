@@ -1,20 +1,31 @@
 # Freelaw Studio Agent Plugin
 
-Pacote público para conectar agentes e assistentes ao Freelaw Studio com a
-API pública e o MCP remoto. Ele foi desenhado para clientes, integradores e
-equipes jurídicas; não contém capacidades administrativas.
+Public package to connect agents to Freelaw Studio via the public API and
+remote MCP. Built for clients, integrators, and legal teams. No admin
+capabilities.
 
-## O que está neste repositório
+Official xAI marketplace listing: open
+[this compare](https://github.com/xai-org/plugin-marketplace/compare/main...Freelaw-S-A:feat/add-freelaw-studio?expand=1)
+(the GitHub App token used in automation cannot create PRs on `xai-org`).
 
-- `plugins/freelaw-studio/`: pacote portátil no padrão [Agent Plugins](https://agent-plugins.org/), com skills, comandos e a configuração do MCP.
-- `gemini-extension.json` e `GEMINI.md` na raiz: instalação direta no Gemini CLI.
-- `.grok-plugin/marketplace.json`: marketplace local para o Grok Build.
-- `docs/api.md`: contrato HTTP, autenticação e descoberta dinâmica de ações.
-- `docs/mcp.md`: conexão Streamable HTTP e regras de credenciais.
-- `docs/agent.md`: comportamento esperado do agente, incluindo permissões, idempotência e polling.
-- `docs/resources.md`: URLs canônicas para OpenAPI, manifest, `llms.txt` e go-live.
+Until that lands, Grok Build can still install from this repo:
 
-## Instalação
+```bash
+grok plugin marketplace add https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin.git
+grok plugin install freelaw-studio --trust
+```
+
+## What is in this repository
+
+- `plugins/freelaw-studio/`: portable [Agent Plugins](https://agent-plugins.org/) package with skills, commands, MCP config, LICENSE, and Grok/Claude/Codex/Gemini manifests.
+- `gemini-extension.json` and `GEMINI.md` at the repo root: Gemini CLI install.
+- `.grok-plugin/marketplace.json`: local marketplace for Grok Build.
+- `docs/api.md`: HTTP contract, auth, live action discovery.
+- `docs/mcp.md`: Streamable HTTP connection and credential rules.
+- `docs/agent.md`: expected agent behavior (permissions, idempotency, polling).
+- `docs/resources.md`: canonical URLs for OpenAPI, manifest, `llms.txt`, go-live.
+
+## Install
 
 ### Grok Build
 
@@ -23,8 +34,8 @@ grok plugin marketplace add https://github.com/Freelaw-S-A/freelaw-studio-agent-
 grok plugin install freelaw-studio
 ```
 
-No Grok (chat), adicione um conector customizado com
-`https://app.freelaw.ai/api/agent/mcp` e sem header de Authorization.
+In Grok (chat), add a custom connector at
+`https://app.freelaw.ai/api/agent/mcp` with no Authorization header.
 
 ### Gemini CLI
 
@@ -32,7 +43,7 @@ No Grok (chat), adicione um conector customizado com
 gemini extensions install https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin
 ```
 
-A instalação pelo GitHub lê `gemini-extension.json` na raiz deste repositório.
+GitHub install reads `gemini-extension.json` at the repo root.
 
 ### Codex
 
@@ -41,38 +52,36 @@ codex plugin marketplace add https://github.com/Freelaw-S-A/freelaw-studio-agent
 codex plugin add freelaw-studio@freelaw-studio
 ```
 
-O mesmo diretório pode ser apontado por hosts compatíveis com o padrão Agent
-Plugins. A instalação, autenticação e permissões continuam sendo gerenciadas
-pelo host.
+The same directory can be pointed at by any Agent Plugins-compatible host.
+Install, auth, and permissions stay host-managed.
 
 ### Manual
 
-Clone o repositório e aponte o host para
-`plugins/freelaw-studio/`. Não copie tokens para o checkout nem para o arquivo
-de configuração do plugin.
+Clone the repo and point the host at `plugins/freelaw-studio/`. Do not copy
+tokens into the checkout or the plugin config file.
 
-## Primeira conexão
+## First connection
 
-1. Leia [`docs/agent.md`](docs/agent.md) e a [documentação pública](https://freelaw.ai/developers).
-2. Configure o MCP remoto. Grok/Claude/Codex usam [`.mcp.json`](plugins/freelaw-studio/.mcp.json) (`type: http`). Agent Plugins / Cursor usam [`mcp.json`](plugins/freelaw-studio/mcp.json) (`type: streamable-http`). O servidor é o mesmo.
-3. Complete OAuth 2.1 + PKCE no host. Nunca cole `flk_`, cookies ou refresh tokens no chat.
-4. Execute `/conectar` ou `office.permissions.describe` antes de qualquer leitura ou escrita.
-5. Faça o smoke test e registre `X-Correlation-ID` sem armazenar dados sensíveis.
+1. Read [`docs/agent.md`](docs/agent.md) and the [public docs](https://freelaw.ai/developers).
+2. Configure remote MCP. Grok/Claude/Codex use [`.mcp.json`](plugins/freelaw-studio/.mcp.json) (`type: http`). Agent Plugins / Cursor use [`mcp.json`](plugins/freelaw-studio/mcp.json) (`type: streamable-http`). Same server.
+3. Complete OAuth 2.1 + PKCE on the host. Never paste `flk_`, cookies, or refresh tokens into chat.
+4. Run `/conectar` or `office.permissions.describe` before any read or write.
+5. Smoke-test and keep `X-Correlation-ID` without storing sensitive data.
 
-O arquivo MCP deliberadamente não contém `X-API-Key`. O host deve fornecer a
-credencial por um mecanismo seguro, como OAuth ou secret store. A chave nunca
-deve entrar no prompt, em commits ou em logs.
+The MCP file deliberately has no `X-API-Key`. The host must supply the
+credential through OAuth or a secret store. The key must never enter a prompt,
+commit, or log.
 
-## Skills e comandos
+## Skills and commands
 
-Skills: `studio` (roteador), `delegacoes`, `peticoes`, `processos`, `clientes`, `prazos`, `publicacoes`, `documentos`.
+Skills: `studio` (router), `delegacoes`, `peticoes`, `processos`, `clientes`, `prazos`, `publicacoes`, `documentos`.
 
-Comandos: `/conectar`, `/permissoes`, `/os`, `/peticao`, `/prazos`, `/intimacoes`.
+Commands: `/conectar`, `/permissoes`, `/os`, `/peticao`, `/prazos`, `/intimacoes`.
 
-## Limite do produto
+## Product boundary
 
-Este pacote acessa somente a superfície pública do Freelaw Studio em
-`app.freelaw.ai/api/agent/*`. Ele não fornece acesso a administração,
-operações internas ou dados fora do escritório autenticado. O SDK/npm é uma
-possível evolução separada; a integração atual usa HTTP e MCP como contratos
-canônicos.
+This package only reaches the public Freelaw Studio surface at
+`app.freelaw.ai/api/agent/*`. It does not provide admin, internal operations,
+or data outside the authenticated office.
+
+License: MIT.

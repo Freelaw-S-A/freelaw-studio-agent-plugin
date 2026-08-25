@@ -1,7 +1,7 @@
 {
   "name": "freelaw-studio",
-  "version": "0.3.0",
-  "description": "Client-facing Freelaw Studio plugin for Grok Build. Remote MCP plus skills for organization-scoped legal workflows.",
+  "version": "0.3.1",
+  "description": "Connect Grok to a Freelaw Studio law office through the public hosted MCP. Organization-scoped; OAuth 2.1 PKCE; no admin or Backstage access.",
   "author": {
     "name": "Freelaw S.A.",
     "url": "https://github.com/Freelaw-S-A"
@@ -11,11 +11,7 @@
   "license": "MIT",
   "keywords": [
     "freelaw",
-    "studio",
-    "legal-tech",
-    "mcp",
-    "advocacia",
-    "peticoes",
-    "processos"
+    "freelaw studio",
+    "freelaw mcp"
   ]
 }

@@ -3,6 +3,12 @@
 This package exposes only the public Freelaw Studio MCP endpoint. It contains no
 credentials, customer records, cookies, or private service endpoints.
 
+Official xAI catalog compare (this GitHub App token cannot open PRs on `xai-org`):
+
+https://github.com/xai-org/plugin-marketplace/compare/main...Freelaw-S-A:feat/add-freelaw-studio?expand=1
+
+Pin: `https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin.git` @ merge SHA of this repo, `path: plugins/freelaw-studio`.
+
 ## Reviewer setup
 
 - Endpoint: `https://app.freelaw.ai/api/agent/mcp`
@@ -14,6 +20,7 @@ credentials, customer records, cookies, or private service endpoints.
 - Privacy: https://freelaw.ai/politica-de-privacidade
 - Terms: https://freelaw.ai/termos-de-uso
 - Walkthrough: [`docs/freelaw-studio-review.gif`](docs/freelaw-studio-review.gif)
+- License: MIT, in repo root and in `plugins/freelaw-studio/LICENSE`
 
 ## Host packaging
 
@@ -24,8 +31,6 @@ credentials, customer records, cookies, or private service endpoints.
 | Gemini CLI | `gemini extensions install https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin` | Root `gemini-extension.json` uses `httpUrl` + `oauth.enabled` |
 | Claude / Codex / Cursor | Remote MCP URL; host runs OAuth | Agent Plugins `mcp.json` stays `streamable-http` |
 
-Official listing on `xai-org/plugin-marketplace` is a follow-up PR pinned to the merge SHA of this repo (`source.url` + `source.sha` + `path: plugins/freelaw-studio`).
-
 ## Safety expectations
 
 The agent must discover permissions and tools before acting, keep all reads and
@@ -35,5 +40,5 @@ review before AI-generated legal work product is relied upon or finalized.
 
 ## Release
 
-Version 0.3.0 adds Grok and Gemini packaging, office-domain skills, and slash
-commands on the same public Studio MCP contract.
+Version 0.3.1 is the marketplace-ready pin: LICENSE inside the plugin path,
+English reviewer README, brand-scoped keywords, hosted MCP only.
