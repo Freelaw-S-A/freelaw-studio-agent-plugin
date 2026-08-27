@@ -10,8 +10,10 @@ available.
   asynchronous generation.
 - Confirm the office context and the user's authority when the request changes
   data or spends service/AI quota.
-- Load the public contract and discover the token's permissions and live action
-  schemas.
+- Use the live tool catalog already provided by the host. Do not call
+  `office.permissions.describe` or `tools/list` as a ritual on every question.
+  Call `office.catalog.list` only when creating a service (OS).
+  Prefer `office.dailySummary.get` for "what do I have today".
 - Ask for missing business fields instead of fabricating IDs, dates, people, or
   catalog values.
 

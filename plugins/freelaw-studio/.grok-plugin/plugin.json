@@ -1,6 +1,6 @@
 {
   "name": "freelaw-studio",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Connect Grok to a Freelaw Studio law office through the public hosted MCP. Organization-scoped; OAuth 2.1 PKCE; no admin or Backstage access.",
   "author": {
     "name": "Freelaw S.A.",

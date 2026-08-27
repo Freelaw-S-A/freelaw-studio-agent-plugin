@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2 - 2026-08-27
+
+- Stop the per-turn discovery ritual (`permissions.describe` + `tools/list`) in
+  agent instructions. Prefer `office.dailySummary.get` for "what do I have today"
+  and call `office.catalog.list` only when creating a service (OS).
+
 ## 0.3.1 - 2026-08-25
 
 - LICENSE copied into `plugins/freelaw-studio/` so the xAI catalog pin is self-contained.
