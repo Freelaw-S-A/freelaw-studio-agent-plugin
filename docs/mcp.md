@@ -49,11 +49,19 @@ Never paste `flk_` into chat.
 
 After connecting, the agent should:
 
-1. complete the MCP initialize handshake and read `initialize.instructions`;
-2. call `tools/list` and inspect `inputSchema` and the live go-live metadata;
-3. call the permissions and catalog tools before any write;
-4. preserve idempotency keys and respect retry/polling guidance;
-5. verify terminal results before communicating completion.
+1. Use the permission-filtered catalog already returned by the host. Do not
+   call `office.permissions.describe` or `tools/list` as a ritual on every
+   user question.
+2. Prefer one domain tool immediately (`office.dailySummary.get` for "what do
+   I have today").
+3. Call `office.catalog.list` only when creating a service (OS); never invent
+   catalog UUIDs.
+4. Preserve idempotency keys and respect retry/polling guidance.
+5. Verify terminal results before communicating completion.
+
+Integrators validating a new connection can read
+`_meta.freelaw.goLive.tryItSequence` on `tools/list` once — not per user
+question.
 
 MCP tool names may be encoded by a host (for example,
 `office__delegations__create`). The tool description and live schema win over

@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "freelaw-studio",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Client-facing Freelaw Studio plugin: organization-scoped legal workflows through the public MCP.",
   "author": {
     "name": "Freelaw S.A.",

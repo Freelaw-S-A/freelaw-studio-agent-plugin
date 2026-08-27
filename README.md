@@ -65,7 +65,7 @@ tokens into the checkout or the plugin config file.
 1. Read [`docs/agent.md`](docs/agent.md) and the [public docs](https://freelaw.ai/developers).
 2. Configure remote MCP. Grok/Claude/Codex use [`.mcp.json`](plugins/freelaw-studio/.mcp.json) (`type: http`). Agent Plugins / Cursor use [`mcp.json`](plugins/freelaw-studio/mcp.json) (`type: streamable-http`). Same server.
 3. Complete OAuth 2.1 + PKCE on the host. Never paste `flk_`, cookies, or refresh tokens into chat.
-4. Run `/conectar` or `office.permissions.describe` before any read or write.
+4. Run `/conectar` once to validate the connection. Do not ritual-call `office.permissions.describe` on every user question; prefer `office.dailySummary.get` for "o que tenho hoje".
 5. Smoke-test and keep `X-Correlation-ID` without storing sensitive data.
 
 The MCP file deliberately has no `X-API-Key`. The host must supply the

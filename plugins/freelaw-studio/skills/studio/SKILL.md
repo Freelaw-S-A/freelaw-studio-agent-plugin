@@ -36,9 +36,9 @@ Never ask the user to paste `flk_…`, cookies, or refresh tokens into a prompt.
 
 1. Establish the user, office, requested outcome, and whether the action is a read or write.
 2. Obtain a host-managed credential with the minimum required scopes.
-3. Call `office.permissions.describe` first when using an authenticated key.
-4. Call `GET /api/agent/list` or MCP `tools/list` and use the live `inputSchema`.
-5. Call `office.catalog.list` before creating a service; never invent catalog UUIDs.
+3. Do not ritual-call `office.permissions.describe` or `tools/list` on every user question — the connected catalog is already permission-filtered.
+4. Prefer one domain tool immediately. For "what do I have today" / prazos + intimações + tarefas, call `office.dailySummary.get`.
+5. Call `office.catalog.list` only when creating a service (OS); never invent catalog UUIDs.
 6. Before a write, confirm the target and required fields. Use an explicit `idempotencyKey` for retriable mutations.
 7. For documents, use the signed upload URL and confirm the upload before starting downstream generation. Never log `uploadUrl`.
 8. For asynchronous generation, respect `nextPollAfterSeconds` and `Retry-After`; do not busy-loop or report success before a terminal response.
@@ -47,7 +47,8 @@ Never ask the user to paste `flk_…`, cookies, or refresh tokens into a prompt.
 
 ## Common workflows
 
-- **Permissions:** `office.permissions.describe`
+- **Today / overview:** `office.dailySummary.get`
+- **Permissions (on connect, not every question):** `office.permissions.describe`
 - **Clients:** `office.clients.list` / `get` / `create` / `update`
 - **Processes:** `office.processes.list` / `get` / `create` / `update`; autos via `office.processes.autos.*`
 - **Publications:** `office.publications.list` / `get` / `markRead` / `createTask` / `clientNotice`
@@ -55,7 +56,6 @@ Never ask the user to paste `flk_…`, cookies, or refresh tokens into a prompt.
 - **Petitions:** `office.petitions.generate` → `status` → `download` only when `ready=true`
 - **Deadlines:** `office.deadlines.list` / `validate` / `validateAndCreateTask`
 - **Tasks:** `office.tasks.list` / `create` / `update`
-- **Daily summary:** `office.dailySummary.get`
 - **Usage:** `office.usage.get`
 
 MCP hosts may encode tool names as `office__delegations__create`. The live schema wins.
