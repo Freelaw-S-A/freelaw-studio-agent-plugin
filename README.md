@@ -45,6 +45,15 @@ gemini extensions install https://github.com/Freelaw-S-A/freelaw-studio-agent-pl
 
 GitHub install reads `gemini-extension.json` at the repo root.
 
+### Claude Code
+
+```bash
+claude plugin marketplace add Freelaw-S-A/freelaw-studio-agent-plugin
+claude plugin install freelaw-studio@freelaw-studio
+```
+
+Claude and ChatGPT hosted connectors use `https://app.freelaw.ai/api/agent/mcp` with host-managed OAuth. Marketplace installation and official directory approval are separate release states.
+
 ### Codex
 
 ```bash
