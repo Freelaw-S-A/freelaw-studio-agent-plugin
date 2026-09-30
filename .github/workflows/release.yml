@@ -1,0 +1,211 @@
+name: Release and provider handoff
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing vX.Y.Z tag to package; dispatch this workflow from main
+        required: true
+        type: string
+      submission_target:
+        description: Optional provider handoff after the release assets are verified
+        required: true
+        default: none
+        type: choice
+        options:
+          - none
+          - chatgpt-openai
+          - claude-anthropic
+          - grok-xai
+          - meta-muse-spark
+          - all
+      execute_grok_pr:
+        description: Open or update the xAI marketplace PR (requires protected environment and token)
+        required: true
+        default: false
+        type: boolean
+      grok_fork:
+        description: GitHub fork that can push the xAI catalog branch
+        required: true
+        default: Freelaw-S-A/plugin-marketplace
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'push' && github.ref_name || inputs.release_tag }}
+    steps:
+      - name: Check out the tagged source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'push' && github.ref || inputs.release_tag }}
+      - name: Install Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.2
+      - name: Fetch trusted branch and tags
+        run: git fetch --force origin main --tags
+      - name: Require the tagged commit to belong to trusted main
+        run: |
+          set -euo pipefail
+          [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
+          git merge-base --is-ancestor HEAD origin/main
+          test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "refs/tags/$RELEASE_TAG")"
+      - name: Verify version, tag target and main ancestry
+        run: >-
+          bun scripts/verify-release-context.mjs
+          --tag "$RELEASE_TAG"
+          --event "${{ github.event_name }}"
+          --source-ref "${{ github.ref }}"
+      - name: Record the verified release commit
+        run: echo "RELEASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Test and validate
+        run: |
+          bun test tests
+          bun run validate
+      - name: Build versioned ZIP
+        run: bun run build
+      - name: Produce public MCP readiness receipt
+        env:
+          FREELAW_REVIEW_MCP_TOKEN: ${{ secrets.FREELAW_REVIEW_MCP_TOKEN }}
+        run: bun run check:mcp -- --output "dist/mcp-readiness-${RELEASE_TAG#v}.json"
+      - name: Produce provider submission handoff
+        env:
+          RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }}
+        run: >-
+          bun scripts/build-submission-handoff.mjs
+          --tag "$RELEASE_TAG"
+          --sha "$RELEASE_SHA"
+          --release-url "$RELEASE_URL"
+          --output "dist/submission-handoff-${RELEASE_TAG#v}.json"
+          --markdown "dist/submission-handoff-${RELEASE_TAG#v}.md"
+      - name: Create checksums
+        working-directory: dist
+        run: >-
+          sha256sum
+          "freelaw-studio-${RELEASE_TAG#v}.zip"
+          "mcp-readiness-${RELEASE_TAG#v}.json"
+          "submission-handoff-${RELEASE_TAG#v}.json"
+          "submission-handoff-${RELEASE_TAG#v}.md"
+          > "SHA256SUMS-${RELEASE_TAG#v}.txt"
+      - name: Create or update the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag --generate-notes --title "Freelaw Studio ${RELEASE_TAG#v}"
+          fi
+          gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
+            "dist/freelaw-studio-${RELEASE_TAG#v}.zip" \
+            "dist/mcp-readiness-${RELEASE_TAG#v}.json" \
+            "dist/submission-handoff-${RELEASE_TAG#v}.json" \
+            "dist/submission-handoff-${RELEASE_TAG#v}.md" \
+            "dist/SHA256SUMS-${RELEASE_TAG#v}.txt"
+      - name: Verify uploaded release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[].name' > /tmp/release-assets.txt
+          for asset in \
+            "freelaw-studio-${RELEASE_TAG#v}.zip" \
+            "mcp-readiness-${RELEASE_TAG#v}.json" \
+            "submission-handoff-${RELEASE_TAG#v}.json" \
+            "submission-handoff-${RELEASE_TAG#v}.md" \
+            "SHA256SUMS-${RELEASE_TAG#v}.txt"; do
+            grep -Fx "$asset" /tmp/release-assets.txt >/dev/null
+          done
+      - name: Publish the verified release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+
+  provider-handoff:
+    if: github.event_name == 'workflow_dispatch' && inputs.submission_target != 'none'
+    needs: release
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    environment: directory-submission
+    env:
+      RELEASE_TAG: ${{ inputs.release_tag }}
+    steps:
+      - name: Check out the released source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.release_tag }}
+      - name: Record provider state
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --pattern "submission-handoff-${RELEASE_TAG#v}.*" --dir dist
+          {
+            echo "## Provider handoff"
+            echo "Target: ${{ inputs.submission_target }}"
+            echo "Release: https://github.com/$GITHUB_REPOSITORY/releases/tag/$RELEASE_TAG"
+            echo "OpenAI and Anthropic require their official portals. Meta/Muse Spark remains unverified."
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Require explicit Grok authorization
+        if: inputs.execute_grok_pr && (inputs.submission_target == 'grok-xai' || inputs.submission_target == 'all')
+        env:
+          GROK_MARKETPLACE_TOKEN: ${{ secrets.GROK_MARKETPLACE_TOKEN }}
+        run: test -n "$GROK_MARKETPLACE_TOKEN"
+      - name: Open or update the official Grok marketplace PR
+        if: inputs.execute_grok_pr && (inputs.submission_target == 'grok-xai' || inputs.submission_target == 'all')
+        env:
+          GH_TOKEN: ${{ secrets.GROK_MARKETPLACE_TOKEN }}
+          GROK_FORK: ${{ inputs.grok_fork }}
+        run: |
+          if ! [[ "$GROK_FORK" =~ ^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$ ]]; then
+            echo "grok_fork must be an owner/repository name" >&2
+            exit 1
+          fi
+          fork_owner="${GROK_FORK%%/*}"
+          gh auth setup-git
+          git clone --filter=blob:none "https://github.com/$GROK_FORK.git" /tmp/grok-marketplace
+          git -C /tmp/grok-marketplace remote add upstream https://github.com/xai-org/plugin-marketplace.git
+          git -C /tmp/grok-marketplace fetch upstream main
+          branch="freelaw-studio-${RELEASE_TAG#v}"
+          git -C /tmp/grok-marketplace config user.name freelaw-release-bot
+          git -C /tmp/grok-marketplace config user.email engineering@freelaw.ai
+          if git -C /tmp/grok-marketplace show-ref --verify --quiet "refs/remotes/origin/$branch"; then
+            git -C /tmp/grok-marketplace checkout -b "$branch" "origin/$branch"
+            git -C /tmp/grok-marketplace merge --no-edit upstream/main
+          else
+            git -C /tmp/grok-marketplace checkout -b "$branch" upstream/main
+          fi
+          node --input-type=module -e "import fs from 'node:fs'; const h=JSON.parse(fs.readFileSync('dist/submission-handoff-${RELEASE_TAG#v}.json')); fs.writeFileSync('/tmp/grok-entry.json', JSON.stringify(h.grokCatalogEntry, null, 2) + '\\n')"
+          python3 scripts/update-grok-catalog.py \
+            --catalog /tmp/grok-marketplace/.grok-plugin/marketplace.json \
+            --entry /tmp/grok-entry.json
+          python3 /tmp/grok-marketplace/scripts/generate-plugin-index.py
+          python3 /tmp/grok-marketplace/scripts/validate-catalog.py
+          git -C /tmp/grok-marketplace add .grok-plugin/marketplace.json .grok-plugin/plugin-index.json
+          if ! git -C /tmp/grok-marketplace diff --cached --quiet; then
+            git -C /tmp/grok-marketplace commit -m "feat(catalog): add Freelaw Studio $RELEASE_TAG"
+          fi
+          git -C /tmp/grok-marketplace push origin "$branch"
+          existing="$(gh pr list --repo xai-org/plugin-marketplace --head "$fork_owner:$branch" --state open --json url --jq '.[0].url')"
+          if [ -n "$existing" ]; then
+            echo "$existing" >> "$GITHUB_STEP_SUMMARY"
+          else
+            gh pr create --repo xai-org/plugin-marketplace --base main --head "$fork_owner:$branch" \
+              --title "Add Freelaw Studio $RELEASE_TAG" \
+              --body-file "dist/submission-handoff-${RELEASE_TAG#v}.md"
+          fi

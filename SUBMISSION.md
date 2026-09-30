@@ -7,8 +7,8 @@ credentials or customer records.
 
 ## Release and evidence
 
-Release: **0.4.0**. Build the upload artifact with `bun run build`:
-`dist/freelaw-studio-0.4.0.zip`. Its root contains `plugin.json`, `mcp.json`, the
+Release: **0.4.1**. Build the upload artifact with `bun run build`:
+`dist/freelaw-studio-0.4.1.zip`. Its root contains `plugin.json`, `mcp.json`, the
 host manifests, skills, commands, brand icon and license. Pin the public
 repository at the reviewed merge SHA for marketplace installs.
 
@@ -24,6 +24,13 @@ review readiness. The receipt records these separately and deliberately leaves
 `submissionReady` false until the review requirements below have been completed.
 The existing [review GIF](docs/freelaw-studio-review.gif) is an illustrative
 overview; it is not a recording of authenticated acceptance tests.
+
+Pull requests run the same tests, validation and package build without repository
+secrets. A trusted `vX.Y.Z` tag, or a manual run from `main` that names an existing
+tag, verifies the package version, tag target and `origin/main` ancestry before it
+creates a GitHub Release. The release contains the ZIP, public MCP readiness
+receipt, provider handoff, and checksums. See [publishing](docs/publishing.md) for
+the protected, opt-in provider handoff and its limits.
 
 ## Hosted connection
 
@@ -109,10 +116,26 @@ claude plugin install freelaw-studio@freelaw-studio
 Use the marketplace name from the manifest if it changes. A hosted Claude
 custom connector can separately use the same MCP URL and host-managed OAuth.
 Neither installation method implies inclusion in Anthropic's public directory.
-Follow [Claude's plugin publishing documentation](https://code.claude.com/docs/en/plugins)
-to the current directory submission entry point, supply the dedicated reviewer
-account and live evidence, and resolve the directory's current requirements.
+Follow [Claude's plugin publishing documentation](https://code.claude.com/docs/en/plugins/publish)
+and use the directory developer portal, supply the dedicated reviewer account and
+live evidence, and resolve the directory's current requirements.
 The directory decision remains with Anthropic.
+
+## Grok and Meta/Muse Spark
+
+xAI's documented marketplace contribution path is a pull request to the official
+[`xai-org/plugin-marketplace`](https://github.com/xai-org/plugin-marketplace)
+catalog with a remote source pinned to a full commit SHA. The protected manual
+workflow can prepare, validate and open that PR only when an operator explicitly
+selects Grok, enables execution, and provides a dedicated token. A merged catalog
+PR is still an xAI decision.
+
+The official Meta material verified for this release describes Meta Business
+Agent APIs and custom connectors for eligible WhatsApp businesses. It does not
+establish a verified Muse Spark plugin-directory submission path compatible with
+this package. The release therefore records Meta/Muse Spark as `unverified` and
+`manual_required`; an operator must confirm a current official program before any
+submission. See the [provider matrix](docs/provider-matrix.md) for sources.
 
 ## Data handling and legal review
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.1 - 2026-09-30
+
+- Validate pull requests without repository secrets and pin every third-party GitHub Action to a full commit SHA.
+- Verify release tag, package version, tag target and main-branch ancestry before building GitHub Release assets.
+- Publish the ZIP, public MCP readiness receipt, provider submission handoff and checksums from trusted tag or manual runs.
+- Keep OpenAI and Anthropic directory submissions manual; provide an explicitly authorized, manual-only Grok catalog PR path.
+- Record Meta/Muse Spark as unverified instead of treating Meta Business Agent APIs as a compatible plugin directory.
+
 ## 0.4.0 - 2026-09-30
 
 - Align Claude, Codex, portable and Gemini versions.

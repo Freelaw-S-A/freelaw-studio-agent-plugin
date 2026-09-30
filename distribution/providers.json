@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "1.0.0",
+  "providers": [
+    {
+      "id": "chatgpt-openai",
+      "name": "ChatGPT / OpenAI Plugins",
+      "packageCompatibility": "agent-plugin-zip",
+      "submissionStatus": "manual_required",
+      "automation": "release_handoff_only",
+      "officialSource": "https://developers.openai.com/plugins/deploy/submission",
+      "reason": "OpenAI documents ZIP upload, MCP connection, review and publication in the Plugins dashboard; no public submission API is documented."
+    },
+    {
+      "id": "claude-anthropic",
+      "name": "Claude directory",
+      "packageCompatibility": "public-github-plugin-and-remote-mcp",
+      "submissionStatus": "manual_required",
+      "automation": "release_handoff_only",
+      "officialSource": "https://code.claude.com/docs/en/plugins/publish",
+      "reason": "Anthropic documents directory submission through claude.ai/directory/manage; local CLI validation does not submit or approve a listing."
+    },
+    {
+      "id": "grok-xai",
+      "name": "Grok Build plugin marketplace",
+      "packageCompatibility": "pinned-git-source",
+      "submissionStatus": "pull_request_supported",
+      "automation": "manual_workflow_with_dedicated_token",
+      "officialSource": "https://github.com/xai-org/plugin-marketplace",
+      "reason": "xAI documents third-party catalog additions as pull requests with remote sources pinned to a full commit SHA."
+    },
+    {
+      "id": "meta-muse-spark",
+      "name": "Meta / Muse Spark",
+      "packageCompatibility": "unverified",
+      "submissionStatus": "unverified",
+      "automation": "manual_required",
+      "officialSource": "https://developers.facebook.com/documentation/meta-business-agent/llms.txt",
+      "reason": "Official Meta documentation describes Meta Business Agent APIs and connectors for eligible WhatsApp businesses, but no Muse Spark plugin directory or compatible package-submission API was verified."
+    }
+  ]
+}

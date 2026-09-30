@@ -4,11 +4,13 @@ Public package to connect agents to Freelaw Studio via the public API and
 remote MCP. Built for clients, integrators, and legal teams. No admin
 capabilities.
 
-Official xAI marketplace listing: open
-[this compare](https://github.com/xai-org/plugin-marketplace/compare/main...Freelaw-S-A:feat/add-freelaw-studio?expand=1)
-(the GitHub App token used in automation cannot create PRs on `xai-org`).
+The repository package can be installed directly in compatible hosts. Official
+directory listings are separate provider decisions and are not claimed here.
+OpenAI and Anthropic currently require manual portal submissions; xAI documents a
+catalog pull request; a compatible Meta/Muse Spark submission path remains
+unverified. See the [provider matrix](docs/provider-matrix.md).
 
-Until that lands, Grok Build can still install from this repo:
+Grok Build can install from this repository:
 
 ```bash
 grok plugin marketplace add https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin.git
@@ -24,6 +26,8 @@ grok plugin install freelaw-studio --trust
 - `docs/mcp.md`: Streamable HTTP connection and credential rules.
 - `docs/agent.md`: expected agent behavior (permissions, idempotency, polling).
 - `docs/resources.md`: canonical URLs for OpenAPI, manifest, `llms.txt`, go-live.
+- `docs/publishing.md`: CI release and protected provider handoff.
+- `docs/provider-matrix.md`: verified official submission paths and current status.
 
 ## Install
 
