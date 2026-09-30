@@ -65,6 +65,7 @@ jobs:
           set -euo pipefail
           [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
           git merge-base --is-ancestor HEAD origin/main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
           test "$(git rev-parse HEAD)" = "$(git rev-list -n 1 "refs/tags/$RELEASE_TAG")"
       - name: Verify version, tag target and main ancestry
         run: >-
@@ -74,17 +75,35 @@ jobs:
           --source-ref "${{ github.ref }}"
       - name: Record the verified release commit
         run: echo "RELEASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
+      - name: Materialize trusted release workflow helpers
+        run: |
+          set -euo pipefail
+          runtime_dir="$RUNNER_TEMP/release-runtime"
+          mkdir -p "$runtime_dir"
+          for helper in detect-release-state.mjs reconcile-release-assets.mjs; do
+            git show "$GITHUB_SHA:scripts/$helper" > "$runtime_dir/$helper"
+          done
+          echo "RELEASE_RUNTIME_DIR=$runtime_dir" >> "$GITHUB_ENV"
       - name: Test and validate
         run: |
           bun test tests
           bun run validate
       - name: Build versioned ZIP
         run: bun run build
+      - name: Inspect the existing GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          state="$(bun "$RELEASE_RUNTIME_DIR/detect-release-state.mjs" --tag "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY")"
+          echo "RELEASE_STATE=$state" >> "$GITHUB_ENV"
       - name: Produce public MCP readiness receipt
+        if: env.RELEASE_STATE != 'published'
         env:
           FREELAW_REVIEW_MCP_TOKEN: ${{ secrets.FREELAW_REVIEW_MCP_TOKEN }}
         run: bun run check:mcp -- --output "dist/mcp-readiness-${RELEASE_TAG#v}.json"
       - name: Produce provider submission handoff
+        if: env.RELEASE_STATE != 'published'
         env:
           RELEASE_URL: https://github.com/${{ github.repository }}/releases/tag/${{ env.RELEASE_TAG }}
         run: >-
@@ -95,6 +114,7 @@ jobs:
           --output "dist/submission-handoff-${RELEASE_TAG#v}.json"
           --markdown "dist/submission-handoff-${RELEASE_TAG#v}.md"
       - name: Create checksums
+        if: env.RELEASE_STATE != 'published'
         working-directory: dist
         run: >-
           sha256sum
@@ -103,11 +123,12 @@ jobs:
           "submission-handoff-${RELEASE_TAG#v}.json"
           "submission-handoff-${RELEASE_TAG#v}.md"
           > "SHA256SUMS-${RELEASE_TAG#v}.txt"
-      - name: Create or update the GitHub Release
+      - name: Create or resume the draft GitHub Release
+        if: env.RELEASE_STATE != 'published'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if ! gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+          if [ "$RELEASE_STATE" = "missing" ]; then
             gh release create "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft --verify-tag --generate-notes --title "Freelaw Studio ${RELEASE_TAG#v}"
           fi
           gh release upload "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --clobber \
@@ -116,19 +137,10 @@ jobs:
             "dist/submission-handoff-${RELEASE_TAG#v}.json" \
             "dist/submission-handoff-${RELEASE_TAG#v}.md" \
             "dist/SHA256SUMS-${RELEASE_TAG#v}.txt"
-      - name: Verify uploaded release assets
+      - name: Download and reconcile release assets
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' > /tmp/release-assets.txt
-          for asset in \
-            "freelaw-studio-${RELEASE_TAG#v}.zip" \
-            "mcp-readiness-${RELEASE_TAG#v}.json" \
-            "submission-handoff-${RELEASE_TAG#v}.json" \
-            "submission-handoff-${RELEASE_TAG#v}.md" \
-            "SHA256SUMS-${RELEASE_TAG#v}.txt"; do
-            grep -Fx "$asset" /tmp/release-assets.txt >/dev/null
-          done
           verify_dir="$(mktemp -d "$RUNNER_TEMP/plugin-release-verify.XXXXXX")"
           gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$verify_dir" \
             --pattern "freelaw-studio-${RELEASE_TAG#v}.zip" \
@@ -136,9 +148,13 @@ jobs:
             --pattern "submission-handoff-${RELEASE_TAG#v}.json" \
             --pattern "submission-handoff-${RELEASE_TAG#v}.md" \
             --pattern "SHA256SUMS-${RELEASE_TAG#v}.txt"
-          cmp "dist/SHA256SUMS-${RELEASE_TAG#v}.txt" "$verify_dir/SHA256SUMS-${RELEASE_TAG#v}.txt"
-          (cd "$verify_dir" && sha256sum --check "$GITHUB_WORKSPACE/dist/SHA256SUMS-${RELEASE_TAG#v}.txt")
+          bun "$RELEASE_RUNTIME_DIR/reconcile-release-assets.mjs" \
+            --version "${RELEASE_TAG#v}" \
+            --sha "$RELEASE_SHA" \
+            --built-dir dist \
+            --published-dir "$verify_dir"
       - name: Publish the verified release
+        if: env.RELEASE_STATE != 'published'
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release edit "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --draft=false

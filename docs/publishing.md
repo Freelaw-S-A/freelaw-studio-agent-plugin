@@ -17,10 +17,26 @@ run from `main` naming an existing tag. Before publishing it requires:
 - focused tests and validation to pass;
 - public OAuth/MCP discovery to pass.
 
-The workflow uploads the ZIP, readiness receipt, JSON and Markdown provider
-handoffs, and SHA-256 checksums to a draft GitHub Release. It checks the draft
-with `gh release view`, downloads the assets, compares every SHA-256 digest,
-and publishes only after verification. The readiness receipt contains no token. If the optional
+For a missing release, the workflow uploads the ZIP, readiness receipt, JSON
+and Markdown provider handoffs, and SHA-256 checksums to a draft GitHub
+Release. An existing draft can resume that upload. It downloads the assets,
+checks every SHA-256 digest and the reproduced ZIP, and publishes only after
+verification.
+
+A published release is immutable in this workflow. A repeated run downloads
+all five existing assets, requires the checksum file to cover the ZIP and every
+receipt, verifies those hashes, and compares the published ZIP with a fresh
+reproducible build. It reuses the published receipts because fields such as
+`checkedAt` legitimately vary between runs; missing or divergent assets fail
+the job, and no upload or release edit runs for that path.
+
+Manual reruns can target an older tag that predates this reconciliation logic.
+The ZIP is still built exclusively from the tagged checkout. After proving both
+the tag and the workflow commit belong to trusted `main`, the job materializes
+only its release-state and asset-verification helpers from the workflow commit
+into `RUNNER_TEMP`; those helpers do not contribute files to the package.
+
+The readiness receipt contains no token. If the optional
 `FREELAW_REVIEW_MCP_TOKEN` secret exists, it can inspect the authenticated tool
 catalog, but it does not execute reviewer cases or prove directory readiness.
 
