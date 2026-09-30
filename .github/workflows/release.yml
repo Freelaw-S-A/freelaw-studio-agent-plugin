@@ -120,7 +120,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/releases/tags/$RELEASE_TAG" --jq '.assets[].name' > /tmp/release-assets.txt
+          gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --json assets --jq '.assets[].name' > /tmp/release-assets.txt
           for asset in \
             "freelaw-studio-${RELEASE_TAG#v}.zip" \
             "mcp-readiness-${RELEASE_TAG#v}.json" \
@@ -129,6 +129,15 @@ jobs:
             "SHA256SUMS-${RELEASE_TAG#v}.txt"; do
             grep -Fx "$asset" /tmp/release-assets.txt >/dev/null
           done
+          verify_dir="$(mktemp -d "$RUNNER_TEMP/plugin-release-verify.XXXXXX")"
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" --dir "$verify_dir" \
+            --pattern "freelaw-studio-${RELEASE_TAG#v}.zip" \
+            --pattern "mcp-readiness-${RELEASE_TAG#v}.json" \
+            --pattern "submission-handoff-${RELEASE_TAG#v}.json" \
+            --pattern "submission-handoff-${RELEASE_TAG#v}.md" \
+            --pattern "SHA256SUMS-${RELEASE_TAG#v}.txt"
+          cmp "dist/SHA256SUMS-${RELEASE_TAG#v}.txt" "$verify_dir/SHA256SUMS-${RELEASE_TAG#v}.txt"
+          (cd "$verify_dir" && sha256sum --check "$GITHUB_WORKSPACE/dist/SHA256SUMS-${RELEASE_TAG#v}.txt")
       - name: Publish the verified release
         env:
           GH_TOKEN: ${{ github.token }}
