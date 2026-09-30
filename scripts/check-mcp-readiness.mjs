@@ -1,9 +1,12 @@
-import { writeFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ORIGIN = 'https://app.freelaw.ai';
 const SERVER = `${ORIGIN}/api/agent/mcp`;
+const PACKAGE_VERSION = JSON.parse(
+  readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
+).version;
 
 export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
   const get = async (path) => {
@@ -26,7 +29,7 @@ export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
     headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', ...(credential ? { Authorization: `Bearer ${credential}` } : {}) },
     body: JSON.stringify({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) }),
   });
-  const initialization = { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'freelaw-release-check', version: '0.4.0' } };
+  const initialization = { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'freelaw-release-check', version: PACKAGE_VERSION } };
   const unauthorized = await post('initialize', 1, initialization);
   if (unauthorized.status !== 401 || !unauthorized.headers.get('WWW-Authenticate')?.includes(`resource_metadata="${ORIGIN}/.well-known/oauth-protected-resource"`)) throw new Error('OAuth authentication challenge is missing');
   let authenticatedToolScanVerified = false, toolCount = null;
@@ -44,7 +47,7 @@ export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
     authenticatedToolScanVerified = true; toolCount = tools.length;
   }
   return {
-    checkedAt: new Date().toISOString(), serverUrl: SERVER,
+    checkedAt: new Date().toISOString(), packageVersion: PACKAGE_VERSION, serverUrl: SERVER,
     publicTransportVerified: true, authenticatedToolScanVerified, toolCount,
     oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false,
     blockers: ['Execute the five positive and three negative cases with the dedicated reviewer account.', 'Record an accessible live walkthrough and supply reviewer access through the secure portal.', 'Complete publisher/domain verification and portal review checks.'],

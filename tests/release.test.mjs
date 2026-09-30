@@ -2,8 +2,12 @@ import { afterEach, describe, expect, test } from 'bun:test';
 import { cpSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { execFileSync } from 'node:child_process';
 import { validateRelease, packagePath } from '../scripts/validate-release.mjs';
 import { checkMcpReadiness } from '../scripts/check-mcp-readiness.mjs';
+import { validateCicd } from '../scripts/validate-cicd.mjs';
+import { verifyReleaseContext } from '../scripts/verify-release-context.mjs';
+import { buildSubmissionHandoff, handoffMarkdown } from '../scripts/build-submission-handoff.mjs';
 
 const temporary = [];
 afterEach(() => { for (const path of temporary.splice(0)) rmSync(path, { recursive: true, force: true }); });
@@ -22,7 +26,7 @@ function alter(root, file, update) {
 
 describe('portable plugin release', () => {
   test('validates the shipped manifests and reviewer case counts', () => {
-    expect(validateRelease()).toMatchObject({ version: '0.4.0', positiveCases: 5, negativeCases: 3 });
+    expect(validateRelease()).toMatchObject({ version: '0.4.1', positiveCases: 5, negativeCases: 3 });
   });
   test('rejects version drift across hosts', () => {
     const root = fixture();
@@ -39,6 +43,73 @@ describe('portable plugin release', () => {
     expect(() => packagePath(join(root, 'plugins/freelaw-studio'), './../../package.json')).toThrow('escapes');
     rmSync(join(root, 'plugins/freelaw-studio/assets/freelaw-icon.png'));
     expect(() => validateRelease(root)).toThrow('Missing packaged file');
+  });
+});
+
+describe('release automation', () => {
+  test('keeps PR validation secretless, actions pinned and provider states honest', () => {
+    expect(validateCicd()).toEqual({ workflows: 2, providers: 4, actionsPinned: true });
+  });
+
+  test('requires the package version, tag target and trusted main ancestry', () => {
+    const sha = 'a'.repeat(40);
+    const calls = [];
+    const git = (args) => {
+      calls.push(args.join(' '));
+      if (args[0] === 'merge-base') return '';
+      if (args.includes('origin/main')) return 'b'.repeat(40);
+      return sha;
+    };
+    expect(verifyReleaseContext({
+      tag: 'v0.4.1', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
+    })).toMatchObject({ version: '0.4.1', tag: 'v0.4.1', head: sha, mainAncestorVerified: true });
+    expect(calls).toContain(`merge-base --is-ancestor ${sha} origin/main`);
+    expect(() => verifyReleaseContext({
+      tag: 'v0.4.0', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
+    })).toThrow('Tag must match package version');
+    expect(() => verifyReleaseContext({
+      tag: 'v0.4.1', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
+    })).toThrow('dispatched from main');
+  });
+
+  test('builds a provider handoff without claiming authenticated review or approval', () => {
+    const sha = 'c'.repeat(40);
+    const handoff = buildSubmissionHandoff({
+      tag: 'v0.4.1',
+      sha,
+      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.1',
+      checkedAt: '2026-09-30T00:00:00.000Z',
+    });
+    expect(handoff.review).toMatchObject({
+      positiveCasesDeclared: 5,
+      negativeCasesDeclared: 3,
+      authenticatedCasesExecuted: false,
+      approved: false,
+    });
+    expect(handoff.providers.map(({ submissionStatus }) => submissionStatus)).toEqual([
+      'manual_required', 'manual_required', 'pull_request_supported', 'unverified',
+    ]);
+    expect(handoff.grokCatalogEntry.source.sha).toBe(sha);
+    expect(handoff.grokCatalogEntry.source.path).toBe('plugins/freelaw-studio');
+    expect(handoffMarkdown(handoff)).toContain('manual_required');
+    expect(JSON.stringify(handoff)).not.toMatch(/"(?:token|password|secret)"\s*:/i);
+  });
+
+  test('adds or updates one SHA-pinned entry in the Grok catalog', () => {
+    const root = mkdtempSync(join(tmpdir(), 'grok-catalog-test-'));
+    temporary.push(root);
+    const catalog = join(root, 'marketplace.json');
+    const entry = join(root, 'entry.json');
+    writeFileSync(catalog, JSON.stringify({ name: 'xai', plugins: [{ name: 'another', source: { source: 'url', url: 'https://example.com/repo.git', sha: 'd'.repeat(40) } }] }));
+    writeFileSync(entry, JSON.stringify({ name: 'freelaw-studio', source: { source: 'url', url: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin.git', sha: 'e'.repeat(40) } }));
+    const run = () => execFileSync('python3', [
+      'scripts/update-grok-catalog.py', '--catalog', catalog, '--entry', entry,
+    ]);
+    run();
+    run();
+    const plugins = JSON.parse(readFileSync(catalog, 'utf8')).plugins;
+    expect(plugins.map(({ name }) => name)).toEqual(['another', 'freelaw-studio']);
+    expect(plugins.filter(({ name }) => name === 'freelaw-studio')).toHaveLength(1);
   });
 });
 

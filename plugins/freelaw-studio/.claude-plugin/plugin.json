@@ -1,7 +1,7 @@
 {
   "name": "freelaw-studio",
   "description": "Freelaw Studio workflows for organization-scoped legal operations through the public MCP surface.",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": {
     "name": "Freelaw S.A.",
     "url": "https://freelaw.ai"

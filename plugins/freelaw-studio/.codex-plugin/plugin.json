@@ -1,6 +1,6 @@
 {
   "name": "freelaw-studio",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Freelaw Studio guidance for client-facing legal workflows through the public API and MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -102,7 +102,7 @@
         }
       },
       "publication": {
-        "release_notes": "0.4.0: consistent host versions, Claude marketplace, complete OpenAI listing metadata and brand icon, five positive and three negative review cases, validated release ZIP and MCP readiness checks.",
+        "release_notes": "0.4.1: automated release validation, reproducible GitHub Release assets, public readiness receipts and provider-specific submission handoffs. Directory submission remains manual and opt-in.",
         "translations": {
           "pt-BR": {
             "subtitle": "Rotina jurídica do escritório",
