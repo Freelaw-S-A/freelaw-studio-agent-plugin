@@ -17,9 +17,10 @@ run from `main` naming an existing tag. Before publishing it requires:
 - focused tests and validation to pass;
 - public OAuth/MCP discovery to pass.
 
-The workflow publishes the ZIP, readiness receipt, JSON and Markdown provider
-handoffs, and SHA-256 checksums to the GitHub Release, then verifies every asset
-through the GitHub API. The readiness receipt contains no token. If the optional
+The workflow uploads the ZIP, readiness receipt, JSON and Markdown provider
+handoffs, and SHA-256 checksums to a draft GitHub Release. It checks the draft
+with `gh release view`, downloads the assets, compares every SHA-256 digest,
+and publishes only after verification. The readiness receipt contains no token. If the optional
 `FREELAW_REVIEW_MCP_TOKEN` secret exists, it can inspect the authenticated tool
 catalog, but it does not execute reviewer cases or prove directory readiness.
 
