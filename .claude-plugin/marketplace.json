@@ -1,0 +1,14 @@
+{
+  "name": "freelaw-studio",
+  "description": "Freelaw Studio workflows for law offices.",
+  "owner": {
+    "name": "Freelaw S.A."
+  },
+  "plugins": [
+    {
+      "name": "freelaw-studio",
+      "source": "./plugins/freelaw-studio",
+      "description": "Connect your Freelaw office through hosted MCP and OAuth."
+    }
+  ]
+}

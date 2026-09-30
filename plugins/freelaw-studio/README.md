@@ -29,6 +29,15 @@ OAuth 2.1 with PKCE (`office:read` / `office:write`), managed by the host on fir
 
 Alternative: a host-managed `flk_` key in a secret store. Same scopes. Still never in a prompt or this repo.
 
+### Claude Code
+
+```bash
+claude plugin marketplace add Freelaw-S-A/freelaw-studio-agent-plugin
+claude plugin install freelaw-studio@freelaw-studio
+```
+
+Claude and ChatGPT hosted connectors use `https://app.freelaw.ai/api/agent/mcp` with host-managed OAuth. Marketplace installation and official directory approval are separate release states.
+
 ## Hosts
 
 - **Grok Build:** marketplace install of `freelaw-studio`. `.mcp.json` uses `type: http`.
@@ -55,7 +64,7 @@ MIT. See [LICENSE](./LICENSE).
 - [Terms of use](https://freelaw.ai/termos-de-uso)
 - [Support](https://freelaw.ai/developers/support.json)
 
-Repo docs: [`docs/api.md`](../../docs/api.md), [`docs/mcp.md`](../../docs/mcp.md), [`docs/agent.md`](../../docs/agent.md).
+Repo docs: [API](https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/blob/main/docs/api.md), [MCP](https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/blob/main/docs/mcp.md), [agent behavior](https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/blob/main/docs/agent.md).
 
 ## Portugues
 

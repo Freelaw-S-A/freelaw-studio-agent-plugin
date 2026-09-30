@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.0 - 2026-09-30
+
+- Align Claude, Codex, portable and Gemini versions.
+- Add the Claude marketplace and complete ChatGPT/Codex listing metadata, brand icon and review cases.
+- Validate and build a self-contained release ZIP; probe public MCP/OAuth readiness without exposing credentials.
+- Separate packaged, authenticated-tested, submitted and approved states; the generated GIF is illustrative rather than a live acceptance recording.
+
 ## 0.3.2 - 2026-08-27
 
 - Stop the per-turn discovery ritual (`permissions.describe` + `tools/list`) in

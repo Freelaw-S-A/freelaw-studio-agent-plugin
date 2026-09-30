@@ -1,0 +1,13 @@
+{
+  "name": "freelaw-studio-agent-plugin-release",
+  "private": true,
+  "type": "module",
+  "version": "0.4.0",
+  "packageManager": "bun@1.4.2",
+  "scripts": {
+    "test": "bun test tests",
+    "validate": "bun scripts/validate-release.mjs",
+    "check:mcp": "bun scripts/check-mcp-readiness.mjs",
+    "build": "python3 scripts/build-package.py"
+  }
+}
