@@ -14,7 +14,8 @@ export function validateCicd(root = process.cwd()) {
   const read = (path) => readFileSync(resolve(root, path), 'utf8');
   const validation = read('.github/workflows/validate.yml');
   const release = read('.github/workflows/release.yml');
-  const workflows = `${validation}\n${release}`;
+  const liveReadiness = read('.github/workflows/live-readiness.yml');
+  const workflows = `${validation}\n${release}\n${liveReadiness}`;
 
   assert(!workflows.includes('pull_request_target'), 'pull_request_target is forbidden');
   for (const match of workflows.matchAll(/^\s*uses:\s*([^\s#]+)(?:\s+#.*)?$/gm)) {
@@ -32,6 +33,18 @@ export function validateCicd(root = process.cwd()) {
   assert.match(release, /contents:\s*write/, 'Release job needs contents: write for GitHub Releases');
   assert.match(release, /environment:\s*directory-submission/, 'External submission needs a protected environment');
   assert.match(release, /execute_grok_pr/, 'Grok PR execution must be an explicit manual input');
+  assert.match(liveReadiness, /workflow_dispatch:/, 'Live readiness must be manually dispatched');
+  assert(!/^\s*(?:pull_request|push):/m.test(liveReadiness), 'Live readiness cannot run on push or pull request');
+  assert.match(liveReadiness, /if: github\.ref == 'refs\/heads\/main'/, 'Live readiness must be main-only');
+  assert.match(liveReadiness, /permissions:\s*\n\s*contents:\s*read/, 'Live readiness must be read-only');
+  assert(!/^\s*permissions:\s*write-all\s*$/m.test(liveReadiness), 'Live readiness cannot use write-all');
+  assert(!/^\s*[a-z-]+:\s*write\s*$/m.test(liveReadiness), 'Live readiness cannot grant write permissions');
+  assert.match(liveReadiness, /if: always\(\)[\s\S]*actions\/upload-artifact@[a-f0-9]{40}/, 'Live readiness must always upload a SHA-pinned artifact');
+  assert.match(liveReadiness, /FREELAW_REVIEW_MCP_TOKEN:\s*\$\{\{ secrets\.FREELAW_REVIEW_MCP_TOKEN \}\}/, 'Catalog smoke must use the reviewer secret');
+  assert(!validation.includes('FREELAW_REVIEW_MCP_TOKEN'), 'PR validation cannot use the reviewer secret');
+  for (const forbidden of ['gh release', 'gh pr', 'git push', 'execute_grok_pr']) {
+    assert(!liveReadiness.includes(forbidden), `Live readiness cannot mutate external state: ${forbidden}`);
+  }
 
   const matrix = JSON.parse(read('distribution/providers.json'));
   assert.equal(matrix.schemaVersion, '1.0.0');
@@ -45,7 +58,7 @@ export function validateCicd(root = process.cwd()) {
   assert.equal(matrix.providers.find(({ id }) => id === 'grok-xai').submissionStatus, 'pull_request_supported');
   assert.equal(matrix.providers.find(({ id }) => id === 'meta-muse-spark').submissionStatus, 'unverified');
 
-  return { workflows: 2, providers: matrix.providers.length, actionsPinned: true };
+  return { workflows: 3, providers: matrix.providers.length, actionsPinned: true };
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

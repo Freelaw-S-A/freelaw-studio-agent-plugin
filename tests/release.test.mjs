@@ -51,7 +51,7 @@ describe('portable plugin release', () => {
 
 describe('release automation', () => {
   test('keeps PR validation secretless, actions pinned and provider states honest', () => {
-    expect(validateCicd()).toEqual({ workflows: 2, providers: 4, actionsPinned: true });
+    expect(validateCicd()).toEqual({ workflows: 3, providers: 4, actionsPinned: true });
     const workflow = readFileSync('.github/workflows/release.yml', 'utf8');
     expect(workflow).toMatch(
       /- name: Create or resume the draft GitHub Release\n\s+if: env\.RELEASE_STATE != 'published'[\s\S]*?gh release upload[^\n]*--clobber/,

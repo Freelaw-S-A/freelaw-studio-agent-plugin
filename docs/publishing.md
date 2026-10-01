@@ -40,6 +40,26 @@ The readiness receipt contains no token. If the optional
 `FREELAW_REVIEW_MCP_TOKEN` secret exists, it can inspect the authenticated tool
 catalog, but it does not execute reviewer cases or prove directory readiness.
 
+## Current live readiness
+
+`.github/workflows/live-readiness.yml` is a separate manual, `main`-only,
+read-only probe of the current public endpoint. Public mode verifies discovery
+and the OAuth authentication challenge without observing a credential. Optional
+catalog mode requires `FREELAW_REVIEW_MCP_TOKEN` and additionally verifies
+authenticated initialization and `tools/list`.
+
+The workflow always attempts to upload a short-lived sanitized receipt, including
+when the readiness command fails. It reports only scalar verification state and
+never stores the token, authorization headers, raw MCP responses, tool arguments,
+or office/user metadata. `credentialConfigured` is `null` in public mode, `false`
+when catalog mode was requested without a credential, and `true` when a credential
+was provided (even if the live check then failed).
+
+This live receipt is operational evidence, not a replacement for immutable release
+assets. It always keeps `submissionReady`, `oauthConsentFlowVerified`, and
+`reviewCasesExecuted` false. No release, provider catalog, directory, or application
+data is written by the workflow.
+
 ## Provider submission
 
 Provider work runs only through `workflow_dispatch` after release verification
