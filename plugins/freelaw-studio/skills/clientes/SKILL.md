@@ -1,6 +1,6 @@
 ---
 name: clientes
-description: Find and maintain Freelaw Studio clients. Use to buscar cliente, cadastrar cliente, or atualizar ficha. Never invent CPF/CNPJ.
+description: "Find, create and update client records in a connected Freelaw Studio office. Use for buscar cliente, cadastrar cliente or atualizar ficha in Freelaw. Do not activate for general client advice. Never invent CPF/CNPJ."
 ---
 
 # Clientes

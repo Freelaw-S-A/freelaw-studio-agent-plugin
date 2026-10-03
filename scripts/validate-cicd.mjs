@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const EXPECTED_PROVIDER_IDS = [
   'chatgpt-openai',
   'claude-anthropic',
+  'gemini-google',
   'grok-xai',
   'meta-muse-spark',
 ];
@@ -55,6 +56,7 @@ export function validateCicd(root = process.cwd()) {
   }
   assert.equal(matrix.providers.find(({ id }) => id === 'chatgpt-openai').submissionStatus, 'manual_required');
   assert.equal(matrix.providers.find(({ id }) => id === 'claude-anthropic').submissionStatus, 'manual_required');
+  assert.equal(matrix.providers.find(({ id }) => id === 'gemini-google').submissionStatus, 'crawler_discovery');
   assert.equal(matrix.providers.find(({ id }) => id === 'grok-xai').submissionStatus, 'pull_request_supported');
   assert.equal(matrix.providers.find(({ id }) => id === 'meta-muse-spark').submissionStatus, 'unverified');
 

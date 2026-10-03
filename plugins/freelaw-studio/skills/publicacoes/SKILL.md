@@ -1,6 +1,6 @@
 ---
 name: publicacoes
-description: Read Freelaw Studio official-diary publications and intimações. Use for publicações, intimações, marcar como lida, or aviso ao cliente.
+description: "Read official-diary publications and intimações recorded in a connected Freelaw Studio office, mark them read or prepare client notices. Do not activate for general questions about publications or service of process."
 ---
 
 # Publicações

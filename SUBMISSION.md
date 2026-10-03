@@ -7,8 +7,8 @@ credentials or customer records.
 
 ## Release and evidence
 
-Release: **0.4.1**. Build the upload artifact with `bun run build`:
-`dist/freelaw-studio-0.4.1.zip`. Its root contains `plugin.json`, `mcp.json`, the
+Candidate: **0.4.2** (publication pending). Build the upload artifact with `bun run build`:
+`dist/freelaw-studio-0.4.2.zip`. Its root contains `plugin.json`, `mcp.json`, the
 host manifests, skills, commands, brand icon and license. Pin the public
 repository at the reviewed merge SHA for marketplace installs.
 
