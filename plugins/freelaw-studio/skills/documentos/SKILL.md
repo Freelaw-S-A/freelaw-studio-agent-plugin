@@ -1,6 +1,6 @@
 ---
 name: documentos
-description: Upload and confirm files on a Freelaw Studio OS. Use for enviar documento, upload, or anexar arquivo.
+description: "Upload and confirm files on a specified Freelaw Studio OS when the user asks to attach them there. Do not activate for reading or analyzing attachments already available in the host conversation."
 ---
 
 # Documentos

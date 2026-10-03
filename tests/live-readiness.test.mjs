@@ -12,7 +12,7 @@ afterEach(() => {
 
 function checked(overrides = {}) {
   return {
-    packageVersion: '0.4.1',
+    packageVersion: '0.4.2',
     serverUrl: 'https://app.freelaw.ai/api/agent/mcp',
     publicTransportVerified: true,
     authenticatedToolScanVerified: false,
@@ -211,7 +211,7 @@ describe('live MCP readiness receipt', () => {
 
 describe('live readiness workflow policy', () => {
   test('is manual, main-only, read-only, pinned and absent from PR credentials', () => {
-    expect(validateCicd()).toEqual({ workflows: 3, providers: 4, actionsPinned: true });
+    expect(validateCicd()).toEqual({ workflows: 3, providers: 5, actionsPinned: true });
     const workflow = readFileSync('.github/workflows/live-readiness.yml', 'utf8');
     expect(workflow).toContain('if: always()');
     expect(workflow).toContain('credentialConfigured');

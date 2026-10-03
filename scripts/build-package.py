@@ -9,7 +9,8 @@ root = Path(__file__).resolve().parent.parent
 subprocess.run(['bun', 'scripts/validate-release.mjs'], cwd=root, check=True)
 plugin = root / 'plugins/freelaw-studio'
 version = json.loads((plugin / 'plugin.json').read_text())['version']
-output = root / 'dist' / f'freelaw-studio-{version}.zip'
+output_dir = Path(os.environ.get('FREELAW_PLUGIN_DIST_DIR', root / 'dist')).expanduser().resolve()
+output = output_dir / f'freelaw-studio-{version}.zip'
 output.parent.mkdir(exist_ok=True)
 allowed = {'plugin.json', 'mcp.json', '.mcp.json', '.claude-plugin', '.codex-plugin', '.grok-plugin', 'gemini-extension.json', 'GEMINI.md', 'assets', 'skills', 'commands', 'README.md', 'SECURITY.md', 'LICENSE'}
 source_epoch = int(os.environ.get('SOURCE_DATE_EPOCH') or subprocess.check_output(

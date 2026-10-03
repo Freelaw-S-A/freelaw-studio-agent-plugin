@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "freelaw-studio",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Client-facing Freelaw Studio plugin: organization-scoped legal workflows through the public MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -109,7 +109,7 @@
         }
       },
       "publication": {
-        "release_notes": "0.4.1: automated release validation, reproducible GitHub Release assets, public readiness receipts and provider-specific submission handoffs. Directory submission remains manual and opt-in.",
+        "release_notes": "0.4.2: keep research and drafting in the chosen assistant; use Freelaw only for requested office operations or explicit AI generation. Narrow skill routing and reuse valid authorization. Directory submission remains manual and opt-in.",
         "translations": {
           "pt-BR": {
             "subtitle": "Rotina jurídica do escritório",

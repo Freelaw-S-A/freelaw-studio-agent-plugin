@@ -17,7 +17,7 @@ afterEach(() => { for (const path of temporary.splice(0)) rmSync(path, { recursi
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'freelaw-plugin-test-'));
   temporary.push(root);
-  for (const path of ['package.json', 'gemini-extension.json', '.claude-plugin', 'plugins']) cpSync(resolve(path), join(root, path), { recursive: true });
+  for (const path of ['package.json', 'gemini-extension.json', '.claude-plugin', 'distribution', 'plugins']) cpSync(resolve(path), join(root, path), { recursive: true });
   return root;
 }
 function alter(root, file, update) {
@@ -29,7 +29,19 @@ function alter(root, file, update) {
 
 describe('portable plugin release', () => {
   test('validates the shipped manifests and reviewer case counts', () => {
-    expect(validateRelease()).toMatchObject({ version: '0.4.1', positiveCases: 5, negativeCases: 3 });
+    expect(validateRelease()).toMatchObject({ version: '0.4.2', positiveCases: 5, negativeCases: 3 });
+  });
+  test('keeps historical publication receipts and rejects false candidate publication', () => {
+    const root = fixture();
+    const release = JSON.parse(readFileSync(join(root, 'distribution/release.json')));
+    expect(release.package.version).toBe('0.4.1');
+    expect(release.package.releaseUrl).toEndWith('/v0.4.1');
+    alter(root, 'distribution/release.json', value => { value.candidate.status = 'published'; });
+    expect(() => validateRelease(root)).toThrow('Candidate cannot claim publication');
+    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.3'; });
+    expect(() => validateRelease(root)).toThrow('Distribution candidate version drift');
+    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.2'; value.package.version = '0.4.2'; });
+    expect(() => validateRelease(root)).toThrow('Candidate must advance');
   });
   test('rejects version drift across hosts', () => {
     const root = fixture();
@@ -47,11 +59,52 @@ describe('portable plugin release', () => {
     rmSync(join(root, 'plugins/freelaw-studio/assets/freelaw-icon.png'));
     expect(() => validateRelease(root)).toThrow('Missing packaged file');
   });
+  test('requires successful durable runs for future authenticated readiness claims', () => {
+    const root = fixture();
+    alter(root, 'distribution/release.json', (value) => {
+      value.readiness.authenticatedToolScanVerified = true;
+    });
+    expect(() => validateRelease(root)).toThrow('cannot retain a failure receipt');
+    alter(root, 'distribution/release.json', (value) => {
+      delete value.readiness.authenticatedReadinessFailure;
+      value.readiness.oauthConsentFlowVerified = true;
+      value.readiness.reviewCasesExecuted = true;
+      value.readiness.submissionReady = true;
+    });
+    expect(() => validateRelease(root)).toThrow('authenticatedReadinessEvidence');
+    alter(root, 'distribution/release.json', (value) => {
+      value.readiness.authenticatedReadinessRun = 36829999999;
+      const evidence = {
+        receiptUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/actions/runs/36829999999',
+        recordedAt: '2026-10-01T15:00:00Z', sourceSha: 'a'.repeat(40),
+        runId: 36829999999, conclusion: 'success',
+      };
+      value.readiness.authenticatedReadinessEvidence = evidence;
+      value.readiness.oauthConsentEvidence = evidence;
+      value.readiness.reviewCasesEvidence = evidence;
+    });
+    expect(() => validateRelease(root)).not.toThrow();
+  });
+  test('requires a durable receipt before a provider directory claim advances', () => {
+    const root = fixture();
+    alter(root, 'distribution/providers.json', (value) => {
+      value.providers[0].directoryStatus = 'submitted';
+    });
+    expect(() => validateRelease(root)).toThrow('directoryEvidence');
+    alter(root, 'distribution/providers.json', (value) => {
+      value.providers[0].directoryEvidence = {
+        receiptUrl: 'https://example.com/receipts/openai-submission.json',
+        recordedAt: '2026-10-01T15:00:00Z',
+        sourceSha: 'a'.repeat(40),
+      };
+    });
+    expect(() => validateRelease(root)).not.toThrow();
+  });
 });
 
 describe('release automation', () => {
   test('keeps PR validation secretless, actions pinned and provider states honest', () => {
-    expect(validateCicd()).toEqual({ workflows: 3, providers: 4, actionsPinned: true });
+    expect(validateCicd()).toEqual({ workflows: 3, providers: 5, actionsPinned: true });
     const workflow = readFileSync('.github/workflows/release.yml', 'utf8');
     expect(workflow).toMatch(
       /- name: Create or resume the draft GitHub Release\n\s+if: env\.RELEASE_STATE != 'published'[\s\S]*?gh release upload[^\n]*--clobber/,
@@ -139,23 +192,23 @@ describe('release automation', () => {
       return sha;
     };
     expect(verifyReleaseContext({
-      tag: 'v0.4.1', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
-    })).toMatchObject({ version: '0.4.1', tag: 'v0.4.1', head: sha, mainAncestorVerified: true });
+      tag: 'v0.4.2', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
+    })).toMatchObject({ version: '0.4.2', tag: 'v0.4.2', head: sha, mainAncestorVerified: true });
     expect(calls).toContain(`merge-base --is-ancestor ${sha} origin/main`);
     expect(() => verifyReleaseContext({
       tag: 'v0.4.0', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
     })).toThrow('Tag must match package version');
     expect(() => verifyReleaseContext({
-      tag: 'v0.4.1', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
+      tag: 'v0.4.2', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
     })).toThrow('dispatched from main');
   });
 
   test('builds a provider handoff without claiming authenticated review or approval', () => {
     const sha = 'c'.repeat(40);
     const handoff = buildSubmissionHandoff({
-      tag: 'v0.4.1',
+      tag: 'v0.4.2',
       sha,
-      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.1',
+      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.2',
       checkedAt: '2026-09-30T00:00:00.000Z',
     });
     expect(handoff.review).toMatchObject({
@@ -165,7 +218,7 @@ describe('release automation', () => {
       approved: false,
     });
     expect(handoff.providers.map(({ submissionStatus }) => submissionStatus)).toEqual([
-      'manual_required', 'manual_required', 'pull_request_supported', 'unverified',
+      'manual_required', 'manual_required', 'crawler_discovery', 'pull_request_supported', 'unverified',
     ]);
     expect(handoff.grokCatalogEntry.source.sha).toBe(sha);
     expect(handoff.grokCatalogEntry.source.path).toBe('plugins/freelaw-studio');

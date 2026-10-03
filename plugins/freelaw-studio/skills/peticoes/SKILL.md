@@ -1,9 +1,13 @@
 ---
 name: peticoes
-description: Generate, poll, and download Freelaw Studio petitions. Use when the user asks to gerar petição, status da peça, or baixar documento gerado.
+description: "Start, poll and download a petition generation workflow explicitly requested in Freelaw Studio, or retrieve a document already generated there. Do not activate for general drafting, editing or legal research in the host conversation."
 ---
 
 # Petições
+
+For drafting in this conversation, use the host model. Call Freelaw generation
+only for an explicitly requested Studio generation service, after confirming the
+OS and required fields; do not implicitly spend AI credits to answer a question.
 
 1. Confirm the OS (`delegationId`) and that supporting documents are uploaded and confirmed.
 2. Start `office.petitions.generate` only after the user confirms the OS and `documentType`: `initial_petition` | `defense` | `appeal` | `memo`.

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.2 - 2026-10-03
+
+- Keep general research, reasoning and drafting in the user’s chosen assistant.
+- Activate Freelaw skills for connected office work and explicit generation.
+- Reuse valid target authorization while preserving host and server confirmation requirements.
+- Preserve historical publication receipts while preparing the new package.
+
 ## 0.4.1 - 2026-09-30
 
 - Validate pull requests without repository secrets and pin every third-party GitHub Action to a full commit SHA.

@@ -1,11 +1,11 @@
 ---
 name: delegacoes
-description: Create and follow Freelaw Studio services (OS / delegações). Use when the user wants to abrir uma OS, acompanhar serviço, aprovar, pedir revisão, or talk to the provider thread.
+description: "Create and follow services (OS / delegações) in a connected Freelaw Studio office, approve deliveries, request revisions or use its provider thread. Do not activate for drafting in chat without a request to create or manage a Freelaw service."
 ---
 
 # Delegações (OS)
 
-1. Call `office.permissions.describe` and confirm write scope.
+1. Use the host's permission-filtered catalog. Call `office.permissions.describe` only when the connection or write scope is unclear.
 2. Resolve `serviceType` and `legalArea` with `office.catalog.list`. Never invent UUIDs.
 3. Confirm the client (`office.clients.list` / `get`) and process (`office.processes.list` / `get`) before creating.
 4. Ask the user, then confirm: title, polo (`autor`/`reu` when required), prazo fatal, urgência/`deliveryType`, `mode` (`human`|`ai`), `assignment` (`member`|`team`|`freelaw`).

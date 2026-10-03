@@ -1,6 +1,6 @@
 ---
 name: prazos
-description: List, validate, and turn Freelaw Studio legal deadlines into tasks. Use for prazos, prazo fatal, or criar tarefa de prazo. High liability — never fabricate dates.
+description: "Read, validate and manage legal deadlines recorded in a connected Freelaw Studio office and turn them into tasks. Do not activate for general questions about legal time limits. Never fabricate dates."
 ---
 
 # Prazos

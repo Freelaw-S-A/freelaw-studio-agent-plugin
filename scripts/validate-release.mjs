@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { validateDistributionDocuments } from './distribution-contract.mjs';
 
 export function packagePath(root, relative) {
   assert(relative.startsWith('./'), 'Package paths must start with ./');
@@ -16,10 +17,21 @@ export function validateRelease(root = process.cwd()) {
   const json = (file) => JSON.parse(readFileSync(resolve(root, file), 'utf8'));
   const portable = json('plugins/freelaw-studio/plugin.json');
   const codex = json('plugins/freelaw-studio/.codex-plugin/plugin.json');
+  const release = json('distribution/release.json');
+  const providers = json('distribution/providers.json');
   const version = portable.version;
   for (const path of ['package.json', 'gemini-extension.json', 'plugins/freelaw-studio/gemini-extension.json', 'plugins/freelaw-studio/.claude-plugin/plugin.json', 'plugins/freelaw-studio/.codex-plugin/plugin.json', 'plugins/freelaw-studio/.grok-plugin/plugin.json']) {
     assert.equal(json(path).version, version, `Release version drift: ${path}`);
   }
+  if (release.candidate) {
+    assert.equal(release.candidate.status, 'prepared', 'Candidate cannot claim publication');
+    assert.equal(release.candidate.version, version, 'Distribution candidate version drift');
+    assert.match(version, /^\d+\.\d+\.\d+$/, 'Candidate must use a release version');
+    assert(version.localeCompare(release.package.version, 'en', { numeric: true }) > 0, 'Candidate must advance the published version');
+  } else {
+    assert.equal(release.package.version, version, 'Distribution release version drift');
+  }
+  validateDistributionDocuments(release, providers);
   assert.deepEqual(codex.interface, portable.extensions['com.openai'].interface);
   const metadata = codex.interface;
   assert(metadata.displayName.length <= 30 && metadata.shortDescription.length <= 30);

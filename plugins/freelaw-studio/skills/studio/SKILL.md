@@ -1,6 +1,6 @@
 ---
 name: studio
-description: Use for client-facing Freelaw Studio workflows through the public API or MCP, including clients, processes, tasks, delegations, documents, petitions, deadlines, publications, and agent integrations. Do not use for internal administration.
+description: "Operate a connected Freelaw Studio office through public API/MCP: clients, processes, tasks, delegations, documents, petitions, deadlines and publications. Use when the user requests Freelaw office data or an action in Freelaw. Do not activate for general legal research, drafting or analysis of files already in chat, or internal administration."
 ---
 
 # Freelaw Studio
@@ -10,6 +10,18 @@ Freelaw Studio API and MCP. It is intentionally limited to organization-scoped
 public actions. Dispatch to the domain skills (`delegacoes`, `peticoes`,
 `processos`, `clientes`, `prazos`, `publicacoes`, `documentos`) for the
 specific workflow.
+
+## Keep the user's chosen assistant
+
+- Use Freelaw to retrieve office context and execute requested office operations.
+  Keep general reasoning, legal research and drafting in the host conversation.
+- For a mixed request, fetch only the necessary authorized office records, then
+  let the host analyze them. Do not forward the whole conversation to a Freelaw
+  assistant or start a paid generation merely because the plugin is connected.
+- Start Freelaw AI generation only when the user explicitly requests that service
+  and confirms its target and required fields. Surface returned quota/cost limits.
+- When an action is unavailable, explain the specific missing capability or scope.
+  Do not claim that buying a Freelaw AI plan is required unless the server says so.
 
 ## Connect
 

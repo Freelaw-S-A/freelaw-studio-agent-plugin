@@ -1,6 +1,6 @@
 ---
 name: processos
-description: Look up and maintain Freelaw Studio lawsuit files (processos) and tribunal autos downloads. Use for listar processos, ficha do processo, or baixar autos.
+description: "Read and update process records in a connected Freelaw Studio office and request tribunal autos downloads. Use for listar processos, ficha do processo or baixar autos in Freelaw. Do not activate for general legal research."
 ---
 
 # Processos
