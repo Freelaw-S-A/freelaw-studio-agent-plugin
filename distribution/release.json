@@ -2,18 +2,19 @@
   "schemaVersion": "1.0.0",
   "package": {
     "name": "freelaw-studio-agent-plugin",
-    "version": "0.4.1",
+    "version": "0.4.2",
     "status": "public-package-available",
     "pluginUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
-    "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.1",
-    "releaseCommit": "419ca4a5a2bdf1fd4a94c939adb97b21dd25ccb0",
-    "publicSourceSnapshot": "4ef1bca2509fd34f1840ee1501955f94a82f83e2",
-    "mergedPullRequest": 5,
+    "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.2",
+    "releaseCommit": "835f9e74a5d9be475742bc3070de522d5a58bedd",
+    "publicSourceSnapshot": "835f9e74a5d9be475742bc3070de522d5a58bedd",
+    "mergedPullRequest": 9,
+    "publishedAt": "2026-10-04T00:42:11Z",
     "validation": {
-      "claudeCli": "passed",
-      "releaseTests": 12,
+      "releaseTests": 31,
       "releaseWorkflow": "passed",
-      "releaseWorkflowRun": 36712512611
+      "releaseWorkflowRun": 37165754942,
+      "releaseAssetsReconciled": true
     }
   },
   "readiness": {
@@ -23,14 +24,39 @@
     "oauthConsentFlowVerified": false,
     "reviewCasesExecuted": false,
     "submissionReady": false,
-    "publicReadinessRun": 36826833550,
-    "authenticatedReadinessRun": 36826356633,
-    "authenticatedReadinessFailure": "credential-missing",
-    "note": "The public MCP transport and OAuth challenge passed. The reviewer credential, authenticated catalog scan, consent walkthrough and reviewer cases remain pending."
+    "publicReadinessRun": 37165754942,
+    "note": "The published public-only readiness receipt and all five release assets were reconciled by workflow 37165754942. Authenticated catalog, OAuth consent, reviewer cases and directory approval have not been verified for this release."
   },
-  "candidate": {
-    "version": "0.4.2",
-    "status": "prepared",
-    "note": "Host-native office workflow package; historical package and readiness receipts remain unchanged until the new release is published."
-  }
+  "history": [
+    {
+      "package": {
+        "name": "freelaw-studio-agent-plugin",
+        "version": "0.4.1",
+        "status": "public-package-available",
+        "pluginUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
+        "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.1",
+        "releaseCommit": "419ca4a5a2bdf1fd4a94c939adb97b21dd25ccb0",
+        "publicSourceSnapshot": "4ef1bca2509fd34f1840ee1501955f94a82f83e2",
+        "mergedPullRequest": 5,
+        "validation": {
+          "claudeCli": "passed",
+          "releaseTests": 12,
+          "releaseWorkflow": "passed",
+          "releaseWorkflowRun": 36712512611
+        }
+      },
+      "readiness": {
+        "status": "pre-submission",
+        "publicTransportVerified": true,
+        "authenticatedToolScanVerified": false,
+        "oauthConsentFlowVerified": false,
+        "reviewCasesExecuted": false,
+        "submissionReady": false,
+        "publicReadinessRun": 36826833550,
+        "authenticatedReadinessRun": 36826356633,
+        "authenticatedReadinessFailure": "credential-missing",
+        "note": "The public MCP transport and OAuth challenge passed. The reviewer credential, authenticated catalog scan, consent walkthrough and reviewer cases remain pending."
+      }
+    }
+  ]
 }
