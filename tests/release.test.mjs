@@ -311,8 +311,8 @@ function transport({ badResource = false, oauthEnabled = true, challenge = true,
     if (url.endsWith('/.well-known/oauth-protected-resource')) return Response.json({ resource: badResource ? 'https://other.example/mcp' : `${origin}/api/agent/mcp`, authorization_servers: [origin] });
     if (url.endsWith('/.well-known/oauth-authorization-server')) return Response.json({ issuer: origin, code_challenge_methods_supported: ['S256'], authorization_endpoint: `${origin}/oauth/authorize`, token_endpoint: `${origin}/oauth/token`, registration_endpoint: `${origin}/oauth/register` });
     if (!options.headers?.Authorization) return new Response(null, { status: 401, headers: challenge ? { 'WWW-Authenticate': `Bearer resource_metadata="${origin}/.well-known/oauth-protected-resource"` } : {} });
-    const method = JSON.parse(options.body).method;
-    return Response.json({ jsonrpc: '2.0', result: method === 'initialize' ? { serverInfo: { name: 'freelaw' } } : { tools: [{ name: 'office__permissions__describe', description: 'Describe granted office permissions.', annotations: annotations ? { readOnlyHint: true, destructiveHint: false, openWorldHint: false } : { readOnlyHint: true } }] } });
+    const { method, id } = JSON.parse(options.body);
+    return Response.json({ jsonrpc: '2.0', id, result: method === 'initialize' ? { protocolVersion: '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'freelaw', version: '1.0.0' } } : { tools: [{ name: 'office__permissions__describe', inputSchema: { type: 'object' }, description: 'Describe granted office permissions.', annotations: annotations ? { readOnlyHint: true, destructiveHint: false, openWorldHint: false } : { readOnlyHint: true } }] } });
   } };
 }
 describe('submission evidence', () => {
@@ -328,6 +328,40 @@ describe('submission evidence', () => {
   });
   test('requires an actual OAuth challenge', async () => {
     await expect(checkMcpReadiness(transport({ challenge: false }))).rejects.toThrow('challenge');
+  });
+  test('authenticated requests forbid redirects before a credential can leave the service', async () => {
+    const mock = transport();
+    await checkMcpReadiness({ ...mock, token: 'fixture-token' });
+    expect(mock.calls.every(({ options }) => options.redirect === 'error')).toBe(true);
+  });
+  test('rejects invalid RPC envelopes, handshakes and incomplete or unusable catalogs', async () => {
+    const mutations = [
+      body => { body.id = 999; },
+      body => { body.jsonrpc = '1.0'; },
+      body => { body.error = { code: -32603, message: 'private-office-data' }; },
+      body => { if (body.result.serverInfo) body.result.protocolVersion = 'unknown'; },
+      body => { if (body.result.serverInfo) delete body.result.capabilities.tools; },
+      body => { if (body.result.serverInfo) body.result.serverInfo.version = ''; },
+      body => { if (body.result.tools) body.result.nextCursor = 'more'; },
+      body => { if (body.result.tools) delete body.result.tools[0].inputSchema; },
+      body => { if (body.result.tools) body.result.tools[0].inputSchema.type = 'array'; },
+      body => { if (body.result.tools) body.result.tools.push(body.result.tools[0]); },
+      body => { if (body.result.tools) body.result.tools[0].name = 'office__invalid.tool'; },
+      body => { if (body.result.tools) body.result.tools[0].description = 123; },
+    ];
+    for (const mutate of mutations) {
+      const mock = transport();
+      await expect(checkMcpReadiness({
+        token: 'fixture-token',
+        fetchImpl: async (url, options) => {
+          const response = await mock.fetchImpl(url, options);
+          if (!options.headers?.Authorization) return response;
+          const body = await response.json();
+          mutate(body);
+          return Response.json(body);
+        },
+      })).rejects.toThrow();
+    }
   });
   test('authenticated catalog checks require all annotations and do not publish the credential', async () => {
     const mock = transport();

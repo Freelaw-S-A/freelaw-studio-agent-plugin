@@ -8,9 +8,25 @@ const PACKAGE_VERSION = JSON.parse(
   readFileSync(new URL('../package.json', import.meta.url), 'utf8'),
 ).version;
 
+function record(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
+}
+
+function nonemptyString(value) {
+  return typeof value === 'string' && value.trim().length > 0;
+}
+
+async function rpcResult(response, id) {
+  if (!response.ok) throw new Error('Authenticated MCP request failed');
+  const body = await response.json();
+  if (!record(body) || body.jsonrpc !== '2.0' || body.id !== id
+    || 'error' in body || !record(body.result)) throw new Error('Invalid authenticated MCP response');
+  return body.result;
+}
+
 export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
   const get = async (path) => {
-    const response = await fetchImpl(`${ORIGIN}${path}`, { signal: AbortSignal.timeout(15_000) });
+    const response = await fetchImpl(`${ORIGIN}${path}`, { signal: AbortSignal.timeout(15_000), redirect: 'error' });
     if (!response.ok) throw new Error(`Public discovery failed: ${path} (${response.status})`);
     return response.json();
   };
@@ -25,7 +41,7 @@ export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
     if (url.origin !== ORIGIN || url.username || url.password) throw new Error('OAuth endpoint leaves the configured service');
   }
   const post = (method, id, params, credential) => fetchImpl(SERVER, {
-    method: 'POST', signal: AbortSignal.timeout(15_000),
+    method: 'POST', signal: AbortSignal.timeout(15_000), redirect: 'error',
     headers: { 'Content-Type': 'application/json', Accept: 'application/json, text/event-stream', ...(credential ? { Authorization: `Bearer ${credential}` } : {}) },
     body: JSON.stringify({ jsonrpc: '2.0', id, method, ...(params ? { params } : {}) }),
   });
@@ -35,13 +51,22 @@ export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
   let authenticatedToolScanVerified = false, toolCount = null;
   if (token) {
     const initialized = await post('initialize', 2, initialization, token);
-    if (!initialized.ok || !(await initialized.json()).result?.serverInfo) throw new Error('Authenticated initialization failed');
+    const initializationResult = await rpcResult(initialized, 2);
+    if (initializationResult.protocolVersion !== initialization.protocolVersion
+      || !nonemptyString(initializationResult.serverInfo?.name)
+      || !nonemptyString(initializationResult.serverInfo?.version)
+      || !record(initializationResult.capabilities?.tools)) throw new Error('Authenticated initialization failed');
     const listed = await post('tools/list', 3, undefined, token);
-    const body = listed.ok ? await listed.json() : null;
-    const tools = body?.result?.tools;
+    const catalog = await rpcResult(listed, 3);
+    if (catalog.nextCursor !== undefined) throw new Error('Authenticated catalog is incomplete');
+    const tools = catalog.tools;
     if (!Array.isArray(tools) || !tools.length) throw new Error('Authenticated catalog is unavailable');
+    const names = new Set();
     for (const tool of tools) {
-      if (!tool.name?.startsWith('office__') || !tool.description?.trim()) throw new Error('Unexpected public tool metadata');
+      if (!record(tool) || !nonemptyString(tool.name) || !/^office__[A-Za-z0-9_-]+$/.test(tool.name)
+        || tool.name.length > 128 || names.has(tool.name) || !nonemptyString(tool.description)
+        || !record(tool.inputSchema) || tool.inputSchema.type !== 'object') throw new Error('Unexpected public tool metadata');
+      names.add(tool.name);
       for (const key of ['readOnlyHint', 'destructiveHint', 'openWorldHint']) if (typeof tool.annotations?.[key] !== 'boolean') throw new Error('Explicit tool annotations are missing');
     }
     authenticatedToolScanVerified = true; toolCount = tools.length;
