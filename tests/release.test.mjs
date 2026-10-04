@@ -303,11 +303,11 @@ describe('release automation', () => {
 });
 
 const origin = 'https://app.freelaw.ai';
-function transport({ badResource = false, oauthEnabled = true, challenge = true, annotations = true } = {}) {
+function transport({ badResource = false, oauthEnabled = true, challenge = true, annotations = true, governedWrites } = {}) {
   const calls = [];
   return { calls, fetchImpl: async (url, options = {}) => {
     calls.push({ url, options });
-    if (url.endsWith('/api/agent/status')) return Response.json({ authentication: { oauth: { enabled: oauthEnabled } }, surfaces: [{ id: 'oauth', status: 'available' }] });
+    if (url.endsWith('/api/agent/status')) return Response.json({ authentication: { oauth: { enabled: oauthEnabled } }, surfaces: [{ id: 'oauth', status: 'available' }], capabilities: { governedWrites } });
     if (url.endsWith('/.well-known/oauth-protected-resource')) return Response.json({ resource: badResource ? 'https://other.example/mcp' : `${origin}/api/agent/mcp`, authorization_servers: [origin] });
     if (url.endsWith('/.well-known/oauth-authorization-server')) return Response.json({ issuer: origin, code_challenge_methods_supported: ['S256'], authorization_endpoint: `${origin}/oauth/authorize`, token_endpoint: `${origin}/oauth/token`, registration_endpoint: `${origin}/oauth/register` });
     if (!options.headers?.Authorization) return new Response(null, { status: 401, headers: challenge ? { 'WWW-Authenticate': `Bearer resource_metadata="${origin}/.well-known/oauth-protected-resource"` } : {} });
@@ -316,6 +316,40 @@ function transport({ badResource = false, oauthEnabled = true, challenge = true,
   } };
 }
 describe('submission evidence', () => {
+  test('reports missing approval signing without failing public discovery or exposing status extras', async () => {
+    const receipt = await checkMcpReadiness(transport({ governedWrites: {
+      status: 'unavailable', approvalSigningConfigured: false,
+      blockers: ['private-provider-error'], secret: 'must-not-project',
+    } }));
+    expect(receipt).toMatchObject({ publicTransportVerified: true, submissionReady: false,
+      governedWrites: { status: 'unavailable', approvalSigningConfigured: false, blockers: ['approval_signing_not_configured'] },
+    });
+    expect(receipt.blockers[0]).toContain('authorized operator');
+    expect(JSON.stringify(receipt)).not.toContain('private-provider-error');
+    expect(JSON.stringify(receipt)).not.toContain('must-not-project');
+  });
+  test('signer presence and an authenticated catalog do not prove an approved persisted write', async () => {
+    const receipt = await checkMcpReadiness({ ...transport({ governedWrites: {
+      status: 'requires_authenticated_verification', approvalSigningConfigured: true,
+    } }), token: 'fixture-token' });
+    expect(receipt).toMatchObject({ authenticatedToolScanVerified: true, submissionReady: false,
+      governedWrites: { status: 'requires_authenticated_verification', approvalSigningConfigured: true, blockers: ['approved_write_not_verified'] },
+    });
+    expect(receipt.blockers[0]).toContain('idempotent retry');
+  });
+  test('absent, malformed, contradictory or unrecognized signing evidence remains unknown', async () => {
+    for (const governedWrites of [undefined, null, [], 'private-provider-error', {},
+      { status: 'unavailable', approvalSigningConfigured: true },
+      { status: 'requires_authenticated_verification', approvalSigningConfigured: false },
+      { status: 'requires_authenticated_verification', approvalSigningConfigured: 'true' },
+      { status: 'verified', approvalSigningConfigured: true },
+    ]) {
+      const receipt = await checkMcpReadiness(transport({ governedWrites }));
+      expect(receipt.governedWrites).toEqual({ status: 'unknown', approvalSigningConfigured: null, blockers: ['approval_signing_configuration_unknown'] });
+      expect(receipt.submissionReady).toBe(false);
+      expect(JSON.stringify(receipt)).not.toContain('private-provider-error');
+    }
+  });
   test('public discovery does not claim authenticated or review readiness', async () => {
     const mock = transport();
     const receipt = await checkMcpReadiness(mock);
