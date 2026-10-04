@@ -31,11 +31,26 @@ describe('portable plugin release', () => {
   test('validates the shipped manifests and reviewer case counts', () => {
     expect(validateRelease()).toMatchObject({ version: '0.4.2', positiveCases: 5, negativeCases: 3 });
   });
-  test('keeps historical publication receipts and rejects false candidate publication', () => {
+  test('records verified publication while preserving the historical receipt', () => {
     const root = fixture();
     const release = JSON.parse(readFileSync(join(root, 'distribution/release.json')));
-    expect(release.package.version).toBe('0.4.1');
-    expect(release.package.releaseUrl).toEndWith('/v0.4.1');
+    expect(release.package.version).toBe('0.4.2');
+    expect(release.package.releaseUrl).toEndWith('/v0.4.2');
+    expect(release.package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
+    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 37165754942, releaseAssetsReconciled: true });
+    expect(release.history[0].package.version).toBe('0.4.1');
+    expect(release.history[0].package.releaseUrl).toEndWith('/v0.4.1');
+    expect(release.history[0].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
+    expect(release.history[0].readiness.authenticatedReadinessFailure).toBe('credential-missing');
+    expect(release.candidate).toBeUndefined();
+    expect(release.readiness).toMatchObject({ authenticatedToolScanVerified: false, oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false });
+  });
+  test('rejects false candidate publication and nonadvancing preparation', () => {
+    const root = fixture();
+    alter(root, 'distribution/release.json', value => {
+      value.package = value.history[0].package;
+      value.candidate = { version: '0.4.2', status: 'prepared' };
+    });
     alter(root, 'distribution/release.json', value => { value.candidate.status = 'published'; });
     expect(() => validateRelease(root)).toThrow('Candidate cannot claim publication');
     alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.3'; });
@@ -63,6 +78,8 @@ describe('portable plugin release', () => {
     const root = fixture();
     alter(root, 'distribution/release.json', (value) => {
       value.readiness.authenticatedToolScanVerified = true;
+      value.readiness.authenticatedReadinessFailure = 'credential-missing';
+      value.readiness.authenticatedReadinessRun = 36826356633;
     });
     expect(() => validateRelease(root)).toThrow('cannot retain a failure receipt');
     alter(root, 'distribution/release.json', (value) => {
