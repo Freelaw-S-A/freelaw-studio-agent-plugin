@@ -7,7 +7,7 @@ credentials or customer records.
 
 ## Release and evidence
 
-Candidate: **0.4.2** (publication pending). Build the upload artifact with `bun run build`:
+Published package: **0.4.2** ([immutable release](https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.2)). Directory submission remains pending. Build the upload artifact with `bun run build`:
 `dist/freelaw-studio-0.4.2.zip`. Its root contains `plugin.json`, `mcp.json`, the
 host manifests, skills, commands, brand icon and license. Pin the public
 repository at the reviewed merge SHA for marketplace installs.
@@ -77,7 +77,7 @@ negative test cases** in `extensions.com.openai.review.test_cases`:
 Capture the same cases through the connected host and verify the mutation in
 Studio. Retain correlation IDs and outcomes without legal content or tokens.
 `FREELAW_REVIEW_MCP_TOKEN` can optionally scan an authenticated tool catalog in
-the readiness command; it does not execute the cases or verify the consent UI.
+the readiness command; it verifies the RPC envelopes, negotiated protocol, tool capability, complete unpaginated catalog, unique tool names, object input schemas and annotations. It does not execute the cases or verify the consent UI. Discovery and authenticated probes reject redirects.
 
 ## ChatGPT and Codex
 
