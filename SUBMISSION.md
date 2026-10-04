@@ -22,6 +22,12 @@ bun run check:mcp -- --output dist/mcp-readiness.json
 Public discovery checks and package validation do **not** prove authenticated
 review readiness. The receipt records these separately and deliberately leaves
 `submissionReady` false until the review requirements below have been completed.
+Both direct and live CI receipts include `governedWrites`: a missing approval
+signer is `unavailable`, absent or inconsistent evidence is `unknown`, and a
+configured signer still `requires_authenticated_verification`. Discovery and
+catalog checks can pass while writes remain blocked. No secret values or raw
+provider blockers are included; approval, persistence and retry need their own
+authenticated evidence.
 The existing [review GIF](docs/freelaw-studio-review.gif) is an illustrative
 overview; it is not a recording of authenticated acceptance tests.
 

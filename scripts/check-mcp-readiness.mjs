@@ -16,6 +16,17 @@ function nonemptyString(value) {
   return typeof value === 'string' && value.trim().length > 0;
 }
 
+// Project only known scalar evidence. Never echo provider fields or raw blockers.
+export function governedWriteReadiness(value) {
+  if (record(value) && value.status === 'unavailable' && value.approvalSigningConfigured === false) {
+    return { status: 'unavailable', approvalSigningConfigured: false, blockers: ['approval_signing_not_configured'] };
+  }
+  if (record(value) && value.status === 'requires_authenticated_verification' && value.approvalSigningConfigured === true) {
+    return { status: 'requires_authenticated_verification', approvalSigningConfigured: true, blockers: ['approved_write_not_verified'] };
+  }
+  return { status: 'unknown', approvalSigningConfigured: null, blockers: ['approval_signing_configuration_unknown'] };
+}
+
 async function rpcResult(response, id) {
   if (!response.ok) throw new Error('Authenticated MCP request failed');
   const body = await response.json();
@@ -48,6 +59,7 @@ export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
   const initialization = { protocolVersion: '2025-06-18', capabilities: {}, clientInfo: { name: 'freelaw-release-check', version: PACKAGE_VERSION } };
   const unauthorized = await post('initialize', 1, initialization);
   if (unauthorized.status !== 401 || !unauthorized.headers.get('WWW-Authenticate')?.includes(`resource_metadata="${ORIGIN}/.well-known/oauth-protected-resource"`)) throw new Error('OAuth authentication challenge is missing');
+  const governedWrites = governedWriteReadiness(status.capabilities?.governedWrites);
   let authenticatedToolScanVerified = false, toolCount = null;
   if (token) {
     const initialized = await post('initialize', 2, initialization, token);
@@ -73,9 +85,18 @@ export async function checkMcpReadiness({ fetchImpl = fetch, token } = {}) {
   }
   return {
     checkedAt: new Date().toISOString(), packageVersion: PACKAGE_VERSION, serverUrl: SERVER,
-    publicTransportVerified: true, authenticatedToolScanVerified, toolCount,
+    publicTransportVerified: true, authenticatedToolScanVerified, toolCount, governedWrites,
     oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false,
-    blockers: ['Execute the five positive and three negative cases with the dedicated reviewer account.', 'Record an accessible live walkthrough and supply reviewer access through the secure portal.', 'Complete publisher/domain verification and portal review checks.'],
+    blockers: [
+      governedWrites.status === 'unavailable'
+        ? 'Provision the approval signer through the authorized operator before testing governed writes.'
+        : governedWrites.status === 'unknown'
+          ? 'Verify the approval signer configuration; public status does not provide consistent evidence.'
+          : 'Verify an approved, persisted write and its idempotent retry; signer presence alone is insufficient.',
+      'Execute the five positive and three negative cases with the dedicated reviewer account.',
+      'Record an accessible live walkthrough and supply reviewer access through the secure portal.',
+      'Complete publisher/domain verification and portal review checks.',
+    ],
   };
 }
 

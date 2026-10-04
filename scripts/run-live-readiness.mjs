@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { checkMcpReadiness } from './check-mcp-readiness.mjs';
+import { checkMcpReadiness, governedWriteReadiness } from './check-mcp-readiness.mjs';
 
 const MODES = new Set(['public', 'catalog']);
 const EXPECTED_SERVER_URL = 'https://app.freelaw.ai/api/agent/mcp';
@@ -21,6 +21,7 @@ function baseReceipt(mode, now) {
     publicTransportVerified: false,
     authenticatedToolScanVerified: false,
     toolCount: null,
+    governedWrites: governedWriteReadiness(undefined),
     submissionReady: false,
     oauthConsentFlowVerified: false,
     reviewCasesExecuted: false,
@@ -65,6 +66,7 @@ export async function runLiveReadiness({
         publicTransportVerified,
         authenticatedToolScanVerified,
         toolCount,
+        governedWrites: governedWriteReadiness(checked.governedWrites),
         submissionReady: false,
         oauthConsentFlowVerified: false,
         reviewCasesExecuted: false,

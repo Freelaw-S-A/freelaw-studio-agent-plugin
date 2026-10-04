@@ -35,6 +35,26 @@ function cicdFixture() {
 }
 
 describe('live MCP readiness receipt', () => {
+  test('projects governed-write prerequisites in both public and catalog receipts without provider data', async () => {
+    for (const mode of ['public', 'catalog']) {
+      const result = await runLiveReadiness({ mode, token: 'fixture-token', check: async () => checked({
+        authenticatedToolScanVerified: true, toolCount: 1,
+        governedWrites: { status: 'unavailable', approvalSigningConfigured: false, blockers: ['private-office-error'], secret: 'fixture-token' },
+      }) });
+      expect(result.ok).toBe(true);
+      expect(result.receipt.governedWrites).toEqual({ status: 'unavailable', approvalSigningConfigured: false, blockers: ['approval_signing_not_configured'] });
+      expect(result.receipt.submissionReady).toBe(false);
+      expect(JSON.stringify(result)).not.toContain('private-office-error');
+      expect(JSON.stringify(result)).not.toContain('fixture-token');
+    }
+  });
+  test('live receipt cannot promote an injected verified-write claim', async () => {
+    const result = await runLiveReadiness({ mode: 'public', check: async () => checked({
+      governedWrites: { status: 'verified', approvalSigningConfigured: true },
+    }) });
+    expect(result.receipt.governedWrites).toEqual({ status: 'unknown', approvalSigningConfigured: null, blockers: ['approval_signing_configuration_unknown'] });
+    expect(result.receipt.submissionReady).toBe(false);
+  });
   test('public mode does not observe credentials and forces review claims false', async () => {
     let options;
     const result = await runLiveReadiness({
