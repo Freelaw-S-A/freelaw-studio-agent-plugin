@@ -46,8 +46,9 @@ export async function runReviewCases({ plan, bindings, primary, foreign, readOnl
     return { actor, catalog };
   };
   let connected = false;
+  let primaryCatalog = [];
   if (primary) {
-    try { await identity(primary, 'primary'); connected = true; }
+    try { ({ catalog: primaryCatalog } = await identity(primary, 'primary')); connected = true; }
     catch { for (const entry of cases) Object.assign(entry, { status: 'failed', reason: 'identity_verification_failed' }); }
   }
   if (connected) {
@@ -95,7 +96,13 @@ export async function runReviewCases({ plan, bindings, primary, foreign, readOnl
       assert(states.size === 2);
     });
     await apply('confirmed_task', async () => {
-      return 'task_idempotency_not_supported';
+      const create = primaryCatalog.find((tool) => tool.name === 'office__tasks__create');
+      const recovery = primaryCatalog.find((tool) => tool.name === 'office__tasks__getByIdempotencyKey');
+      const key = create?.inputSchema?.properties?.idempotencyKey;
+      const supported = key?.type === 'string' && key.format === 'uuid'
+        && recovery?.annotations?.readOnlyHint === true
+        && recovery.inputSchema?.properties?.idempotencyKey?.format === 'uuid';
+      return supported ? 'native_host_required' : 'task_idempotency_not_supported';
     });
     await apply('cross_office', async () => {
       if (!foreign) return 'foreign_identity_required';

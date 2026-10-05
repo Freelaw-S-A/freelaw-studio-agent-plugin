@@ -25,6 +25,17 @@ describe('review case evidence', () => {
     expect(report.nativeHostVerified).toBe(false);
     expect(report.submissionReady).toBe(false);
   });
+  test('advertised task retry and recovery still require native host proof', async () => {
+    const input = setup(), catalog = input.primary.catalog.bind(input.primary);
+    input.primary.catalog = async () => [...await catalog(),
+      { name: 'office__tasks__create', inputSchema: { properties: { idempotencyKey: { type: 'string', format: 'uuid' } } } },
+      { name: 'office__tasks__getByIdempotencyKey', annotations: { readOnlyHint: true }, inputSchema: { properties: { idempotencyKey: { type: 'string', format: 'uuid' } } } },
+    ];
+    const report = await runReviewCases(input);
+    expect(caseFor(report, 'confirmed_task')).toMatchObject({ status: 'blocked', reason: 'native_host_required' });
+    expect(report.submissionReady).toBe(false);
+    expect(report.nativeHostVerified).toBe(false);
+  });
   test('empty fixture lists fail instead of accepting zero results', async () => {
     const input = setup(), call = input.primary.call.bind(input.primary);
     input.primary.call = async (name, args) => name === 'clients.list' ? { clients: [] } : call(name, args);
