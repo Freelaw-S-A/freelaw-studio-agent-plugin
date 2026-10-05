@@ -20,9 +20,12 @@ bun run review:run --simulate --plan docs/review-fixtures.example.json --output 
 The example dates are illustrative and expire. Simulation executes the same
 case predicates against an in-memory read adapter. It cannot establish account
 provisioning, hosted authorization, native host behavior or submission readiness.
-The task case stays blocked: `tasks.create` currently accepts no idempotency key
-and an already-consumed approval proposal is rejected on replay. The credential
-refusal case needs an authenticated native host conversation. Neither case is
+The task case stays blocked until an authenticated native host verifies approval
+and recovery. If the deployed catalog does not advertise a UUID idempotency key
+on `tasks.create` and read-only `tasks.getByIdempotencyKey`, its reason is
+`task_idempotency_not_supported`; with both contracts it is `native_host_required`.
+An already-consumed approval proposal is always rejected on replay. The
+credential refusal case also needs a native host conversation. Neither case is
 fabricated in simulation.
 
 For live reads, first provision the dedicated synthetic fixtures through the
@@ -71,7 +74,7 @@ still exits 2 because the two host/runtime cases remain blocked.
 `liveReviewCasesVerified`, `nativeHostVerified` and `submissionReady` remain
 false. A direct MCP report is technical API evidence, not proof that a host
 renders the overview accurately, asks for confirmation or refuses to reveal
-credentials. Finish those cases in the actual native host after the runtime
-retry contract is resolved. Publisher/domain verification and manual portal
+credentials. Finish those cases in the actual native host with the advertised runtime
+retry and read-only recovery contract. Publisher/domain verification and manual portal
 submission still require their own durable receipts. Do not publish private
 binding files or reviewer credentials alongside the sanitized report.
