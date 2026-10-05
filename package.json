@@ -9,6 +9,8 @@
     "validate": "bun scripts/validate-release.mjs && bun scripts/validate-cicd.mjs",
     "check:mcp": "bun scripts/check-mcp-readiness.mjs",
     "build": "python3 scripts/build-package.py",
-    "handoff": "bun scripts/build-submission-handoff.mjs"
+    "handoff": "bun scripts/build-submission-handoff.mjs",
+    "review:plan": "bun scripts/review-fixtures.mjs",
+    "review:run": "bun scripts/run-review-cases.mjs"
   }
 }

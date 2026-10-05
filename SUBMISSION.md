@@ -164,3 +164,10 @@ authenticated cases, record the live walkthrough and complete identity/domain
 verification. Store the portal submission ID and its actual review result after
 submission. No production credentials, feature flags, domain-challenge secrets
 or store submissions are changed by the build/check commands.
+
+## Executable fixture and case checks
+
+See [the review kit](docs/review-kit.md) for offline plan validation, simulated
+case execution and bounded live read checks with sanitized receipts. The kit
+keeps missing native-host proof and the unsupported task idempotency contract
+blocked; neither simulations nor API-only checks advance provider review facts.
