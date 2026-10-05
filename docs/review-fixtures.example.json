@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "campaign": "directory-review-2026-10",
+  "purpose": "external-directory-review",
+  "synthetic": true,
+  "createdAt": "2026-10-04T00:00:00.000Z",
+  "expiresAt": "2026-10-18T00:00:00.000Z",
+  "offices": [
+    {"key": "primary", "dedicated": true, "synthetic": true},
+    {"key": "foreign", "dedicated": true, "synthetic": true}
+  ],
+  "fixtures": [
+    {"key": "primary-client-one", "type": "client", "office": "primary", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {}},
+    {"key": "primary-client-two", "type": "client", "office": "primary", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {}},
+    {"key": "primary-process", "type": "process", "office": "primary", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {"client": "primary-client-one"}},
+    {"key": "primary-publication-one", "type": "publication", "office": "primary", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {"process": "primary-process"}},
+    {"key": "primary-publication-two", "type": "publication", "office": "primary", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {"process": "primary-process"}},
+    {"key": "primary-task", "type": "task", "office": "primary", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {"client": "primary-client-one", "process": "primary-process"}},
+    {"key": "foreign-client", "type": "client", "office": "foreign", "synthetic": true, "marker": "SYNTHETIC:directory-review-2026-10", "refs": {}}
+  ],
+  "cleanup": {"owner": "review-operator", "dryRunRequired": true, "afterExpires": true, "preserveAudit": true}
+}
