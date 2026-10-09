@@ -58,5 +58,9 @@
         "note": "The public MCP transport and OAuth challenge passed. The reviewer credential, authenticated catalog scan, consent walkthrough and reviewer cases remain pending."
       }
     }
-  ]
+  ],
+  "candidate": {
+    "version": "0.4.3",
+    "status": "prepared"
+  }
 }
