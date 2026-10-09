@@ -1,8 +1,9 @@
 # Executable review kit
 
 This opt-in kit validates fixture plans and runs the eight cases published in
-the plugin review contract. It lives outside the installable package. Version
-0.4.2, its release assets and provider submission facts remain unchanged.
+the plugin review contract. It lives outside the installable package. Candidate
+0.4.3 does not change the published 0.4.2 release assets or provider submission
+facts.
 
 Copy `docs/review-fixtures.example.json` for each campaign. Update its campaign,
 all matching markers, creation and expiration dates. Retention is at most 30

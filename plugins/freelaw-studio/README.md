@@ -45,6 +45,15 @@ Claude and ChatGPT hosted connectors use `https://app.freelaw.ai/api/agent/mcp` 
 - **Gemini CLI:** `gemini extensions install https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin`.
 - **Claude / Codex / Cursor:** remote MCP; host runs OAuth. Agent Plugins `mcp.json` stays `streamable-http`.
 
+## Client journeys
+
+The `studio` skill coordinates five client workflows: write a petition,
+delegate a piece, research jurisprudence, create a task, and analyze a
+publication through its deadline/task/client-notice follow-ups. It also covers
+the daily office overview and document context. The live catalog and server
+responses remain authoritative for availability, approvals, quota and cost;
+the plugin does not invent prices, require an upgrade, or repeat blocked calls.
+
 ## Safety (legal work product)
 
 - Confirm the exact target and effect before any write, upload, generation, send, or delete.

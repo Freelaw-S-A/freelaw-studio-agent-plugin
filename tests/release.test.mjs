@@ -29,7 +29,7 @@ function alter(root, file, update) {
 
 describe('portable plugin release', () => {
   test('validates the shipped manifests and reviewer case counts', () => {
-    expect(validateRelease()).toMatchObject({ version: '0.4.2', positiveCases: 5, negativeCases: 3 });
+    expect(validateRelease()).toMatchObject({ version: '0.4.3', positiveCases: 5, negativeCases: 3 });
   });
   test('records verified publication while preserving the historical receipt', () => {
     const root = fixture();
@@ -42,26 +42,56 @@ describe('portable plugin release', () => {
     expect(release.history[0].package.releaseUrl).toEndWith('/v0.4.1');
     expect(release.history[0].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
     expect(release.history[0].readiness.authenticatedReadinessFailure).toBe('credential-missing');
-    expect(release.candidate).toBeUndefined();
+    expect(release.candidate).toEqual({ version: '0.4.3', status: 'prepared' });
     expect(release.readiness).toMatchObject({ authenticatedToolScanVerified: false, oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false });
   });
   test('rejects false candidate publication and nonadvancing preparation', () => {
     const root = fixture();
     alter(root, 'distribution/release.json', value => {
       value.package = value.history[0].package;
-      value.candidate = { version: '0.4.2', status: 'prepared' };
+      value.candidate = { version: '0.4.3', status: 'prepared' };
     });
     alter(root, 'distribution/release.json', value => { value.candidate.status = 'published'; });
     expect(() => validateRelease(root)).toThrow('Candidate cannot claim publication');
-    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.3'; });
+    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.4'; });
     expect(() => validateRelease(root)).toThrow('Distribution candidate version drift');
-    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.2'; value.package.version = '0.4.2'; });
+    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.3'; value.package.version = '0.4.3'; });
     expect(() => validateRelease(root)).toThrow('Candidate must advance');
   });
   test('rejects version drift across hosts', () => {
     const root = fixture();
     alter(root, 'plugins/freelaw-studio/.claude-plugin/plugin.json', (value) => { value.version = '0.3.0'; });
     expect(() => validateRelease(root)).toThrow('Release version drift');
+  });
+  test('ships Claude directory links and a valid square PNG icon', () => {
+    const root = fixture();
+    const plugin = join(root, 'plugins/freelaw-studio');
+    const manifest = JSON.parse(
+      readFileSync(join(plugin, '.claude-plugin/plugin.json'), 'utf8'),
+    );
+    expect(manifest).toMatchObject({
+      icon: './assets/freelaw-icon.png',
+      documentationUrl: 'https://freelaw.ai/developers',
+      supportUrl: 'https://freelaw.ai/suporte',
+      privacyPolicyUrl: 'https://freelaw.ai/politica-de-privacidade',
+      termsOfServiceUrl: 'https://freelaw.ai/termos-de-uso',
+    });
+    for (const field of [
+      'documentationUrl',
+      'supportUrl',
+      'privacyPolicyUrl',
+      'termsOfServiceUrl',
+    ]) {
+      expect(new URL(manifest[field]).protocol).toBe('https:');
+    }
+    const icon = readFileSync(packagePath(plugin, manifest.icon));
+    expect(icon.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+    const width = icon.readUInt32BE(16);
+    const height = icon.readUInt32BE(20);
+    expect(width).toBe(height);
+    expect(width).toBeGreaterThanOrEqual(48);
+    expect(width).toBeLessThanOrEqual(4096);
+    expect(icon.length).toBeLessThanOrEqual(5 * 1024 * 1024);
   });
   test('rejects credentials bundled in MCP configuration', () => {
     const root = fixture();
@@ -209,23 +239,23 @@ describe('release automation', () => {
       return sha;
     };
     expect(verifyReleaseContext({
-      tag: 'v0.4.2', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
-    })).toMatchObject({ version: '0.4.2', tag: 'v0.4.2', head: sha, mainAncestorVerified: true });
+      tag: 'v0.4.3', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
+    })).toMatchObject({ version: '0.4.3', tag: 'v0.4.3', head: sha, mainAncestorVerified: true });
     expect(calls).toContain(`merge-base --is-ancestor ${sha} origin/main`);
     expect(() => verifyReleaseContext({
       tag: 'v0.4.0', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
     })).toThrow('Tag must match package version');
     expect(() => verifyReleaseContext({
-      tag: 'v0.4.2', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
+      tag: 'v0.4.3', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
     })).toThrow('dispatched from main');
   });
 
   test('builds a provider handoff without claiming authenticated review or approval', () => {
     const sha = 'c'.repeat(40);
     const handoff = buildSubmissionHandoff({
-      tag: 'v0.4.2',
+      tag: 'v0.4.3',
       sha,
-      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.2',
+      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.3',
       checkedAt: '2026-09-30T00:00:00.000Z',
     });
     expect(handoff.review).toMatchObject({

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.3 - 2026-10-09
+
+- Guide petition, delegation, jurisprudence, task and publication workflows
+  through server-reported availability, quota, cost and continuations.
+- Keep host drafting separate from explicitly requested Freelaw generation and
+  avoid repeated blocked calls.
+- Refresh the packaged Freelaw brand icon.
+- Prepare the candidate package while the published 0.4.2 release and provider
+  submission receipts remain unchanged.
+
 ## 0.4.2 - 2026-10-03
 
 - Keep general research, reasoning and drafting in the user’s chosen assistant.

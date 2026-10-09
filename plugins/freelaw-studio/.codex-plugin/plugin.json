@@ -1,6 +1,6 @@
 {
   "name": "freelaw-studio",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "Freelaw Studio guidance for client-facing legal workflows through the public API and MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -102,7 +102,7 @@
         }
       },
       "publication": {
-        "release_notes": "0.4.2: keep research and drafting in the chosen assistant; use Freelaw only for requested office operations or explicit AI generation. Narrow skill routing and reuse valid authorization. Directory submission remains manual and opt-in.",
+        "release_notes": "0.4.3: guide petition, delegation, jurisprudence, task and publication workflows; preserve server-reported cost, quota and approval continuations; refresh the packaged brand icon. Directory submission remains manual and opt-in.",
         "translations": {
           "pt-BR": {
             "subtitle": "Rotina jurídica do escritório",
