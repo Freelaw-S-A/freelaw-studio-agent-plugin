@@ -12,7 +12,7 @@ afterEach(() => {
 
 function checked(overrides = {}) {
   return {
-    packageVersion: '0.4.3',
+    packageVersion: '0.4.4',
     serverUrl: 'https://app.freelaw.ai/api/agent/mcp',
     publicTransportVerified: true,
     authenticatedToolScanVerified: false,

@@ -29,33 +29,35 @@ function alter(root, file, update) {
 
 describe('portable plugin release', () => {
   test('validates the shipped manifests and reviewer case counts', () => {
-    expect(validateRelease()).toMatchObject({ version: '0.4.3', positiveCases: 5, negativeCases: 3 });
+    expect(validateRelease()).toMatchObject({ version: '0.4.4', positiveCases: 5, negativeCases: 3 });
   });
   test('records verified publication while preserving the historical receipt', () => {
     const root = fixture();
     const release = JSON.parse(readFileSync(join(root, 'distribution/release.json')));
-    expect(release.package.version).toBe('0.4.2');
-    expect(release.package.releaseUrl).toEndWith('/v0.4.2');
-    expect(release.package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
-    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 37165754942, releaseAssetsReconciled: true });
-    expect(release.history[0].package.version).toBe('0.4.1');
-    expect(release.history[0].package.releaseUrl).toEndWith('/v0.4.1');
-    expect(release.history[0].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
-    expect(release.history[0].readiness.authenticatedReadinessFailure).toBe('credential-missing');
-    expect(release.candidate).toEqual({ version: '0.4.3', status: 'prepared' });
+    expect(release.package.version).toBe('0.4.3');
+    expect(release.package.releaseUrl).toEndWith('/v0.4.3');
+    expect(release.package.releaseCommit).toBe('97d3fdcc33633d0337d0abd0b690969fef421244');
+    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 37958645378, releaseAssetsReconciled: true });
+    expect(release.history[1].package.version).toBe('0.4.1');
+    expect(release.history[1].package.releaseUrl).toEndWith('/v0.4.1');
+    expect(release.history[1].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
+    expect(release.history[1].readiness.authenticatedReadinessFailure).toBe('credential-missing');
+    expect(release.history[0].package.version).toBe('0.4.2');
+    expect(release.history[0].package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
+    expect(release.candidate).toEqual({ version: '0.4.4', status: 'prepared' });
     expect(release.readiness).toMatchObject({ authenticatedToolScanVerified: false, oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false });
   });
   test('rejects false candidate publication and nonadvancing preparation', () => {
     const root = fixture();
     alter(root, 'distribution/release.json', value => {
       value.package = value.history[0].package;
-      value.candidate = { version: '0.4.3', status: 'prepared' };
+      value.candidate = { version: '0.4.4', status: 'prepared' };
     });
     alter(root, 'distribution/release.json', value => { value.candidate.status = 'published'; });
     expect(() => validateRelease(root)).toThrow('Candidate cannot claim publication');
-    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.4'; });
+    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.5'; });
     expect(() => validateRelease(root)).toThrow('Distribution candidate version drift');
-    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.3'; value.package.version = '0.4.3'; });
+    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.4'; value.package.version = '0.4.4'; });
     expect(() => validateRelease(root)).toThrow('Candidate must advance');
   });
   test('rejects version drift across hosts', () => {
@@ -97,6 +99,18 @@ describe('portable plugin release', () => {
     const root = fixture();
     alter(root, 'plugins/freelaw-studio/.mcp.json', (value) => { value.mcpServers['freelaw-studio'].headers = { Authorization: 'test-only' }; });
     expect(() => validateRelease(root)).toThrow('Bundled credentials');
+  });
+  test('rejects missing OAuth declaration, auth downgrade and bundled client credentials', () => {
+    for (const auth of [undefined, { type: 'none' }, {
+      type: 'oauth', client: { mode: 'provided', clientId: 'test-only', clientSecret: 'test-only' },
+      baseScopes: ['office:read', 'office:write'],
+    }, { type: 'oauth', client: { mode: 'dcr' }, baseScopes: ['office:read', 'admin:write'] }]) {
+      const root = fixture();
+      alter(root, 'plugins/freelaw-studio/mcp.json', value => {
+        value.mcpServers['freelaw-studio'].extensions['com.openai'].auth = auth;
+      });
+      expect(() => validateRelease(root)).toThrow('credential-free OAuth DCR');
+    }
   });
   test('requires referenced release assets and confines their paths', () => {
     const root = fixture();
@@ -239,23 +253,23 @@ describe('release automation', () => {
       return sha;
     };
     expect(verifyReleaseContext({
-      tag: 'v0.4.3', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
-    })).toMatchObject({ version: '0.4.3', tag: 'v0.4.3', head: sha, mainAncestorVerified: true });
+      tag: 'v0.4.4', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
+    })).toMatchObject({ version: '0.4.4', tag: 'v0.4.4', head: sha, mainAncestorVerified: true });
     expect(calls).toContain(`merge-base --is-ancestor ${sha} origin/main`);
     expect(() => verifyReleaseContext({
       tag: 'v0.4.0', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
     })).toThrow('Tag must match package version');
     expect(() => verifyReleaseContext({
-      tag: 'v0.4.3', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
+      tag: 'v0.4.4', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
     })).toThrow('dispatched from main');
   });
 
   test('builds a provider handoff without claiming authenticated review or approval', () => {
     const sha = 'c'.repeat(40);
     const handoff = buildSubmissionHandoff({
-      tag: 'v0.4.3',
+      tag: 'v0.4.4',
       sha,
-      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.3',
+      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.4',
       checkedAt: '2026-09-30T00:00:00.000Z',
     });
     expect(handoff.review).toMatchObject({

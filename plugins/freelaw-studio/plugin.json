@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "freelaw-studio",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Client-facing Freelaw Studio plugin: organization-scoped legal workflows through the public MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -109,7 +109,7 @@
         }
       },
       "publication": {
-        "release_notes": "0.4.3: guide petition, delegation, jurisprudence, task and publication workflows; preserve server-reported cost, quota and approval continuations; refresh the packaged brand icon. Directory submission remains manual and opt-in.",
+        "release_notes": "0.4.4: declare host-managed OAuth DCR and office scopes for OpenAI MCP authentication. Directory approval remains a separate provider decision.",
         "translations": {
           "pt-BR": {
             "subtitle": "Rotina jurídica do escritório",

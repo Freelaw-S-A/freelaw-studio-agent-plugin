@@ -2,18 +2,18 @@
   "schemaVersion": "1.0.0",
   "package": {
     "name": "freelaw-studio-agent-plugin",
-    "version": "0.4.2",
+    "version": "0.4.3",
     "status": "public-package-available",
     "pluginUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
-    "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.2",
-    "releaseCommit": "835f9e74a5d9be475742bc3070de522d5a58bedd",
-    "publicSourceSnapshot": "835f9e74a5d9be475742bc3070de522d5a58bedd",
-    "mergedPullRequest": 9,
-    "publishedAt": "2026-10-04T00:42:11Z",
+    "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.3",
+    "releaseCommit": "97d3fdcc33633d0337d0abd0b690969fef421244",
+    "publicSourceSnapshot": "97d3fdcc33633d0337d0abd0b690969fef421244",
+    "mergedPullRequest": 15,
+    "publishedAt": "2026-10-09T16:22:25Z",
     "validation": {
-      "releaseTests": 31,
+      "releaseTests": 73,
       "releaseWorkflow": "passed",
-      "releaseWorkflowRun": 37165754942,
+      "releaseWorkflowRun": 37958645378,
       "releaseAssetsReconciled": true
     }
   },
@@ -24,10 +24,39 @@
     "oauthConsentFlowVerified": false,
     "reviewCasesExecuted": false,
     "submissionReady": false,
-    "publicReadinessRun": 37165754942,
-    "note": "The published public-only readiness receipt and all five release assets were reconciled by workflow 37165754942. Authenticated catalog, OAuth consent, reviewer cases and directory approval have not been verified for this release."
+    "publicReadinessRun": 37958645378,
+    "note": "The public-only readiness receipt and all five v0.4.3 release assets were reconciled by workflow 37958645378. Dedicated reviewer catalog, consent and case evidence remain pending; this receipt does not assert directory approval."
   },
   "history": [
+    {
+      "package": {
+        "name": "freelaw-studio-agent-plugin",
+        "version": "0.4.2",
+        "status": "public-package-available",
+        "pluginUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
+        "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.2",
+        "releaseCommit": "835f9e74a5d9be475742bc3070de522d5a58bedd",
+        "publicSourceSnapshot": "835f9e74a5d9be475742bc3070de522d5a58bedd",
+        "mergedPullRequest": 9,
+        "publishedAt": "2026-10-04T00:42:11Z",
+        "validation": {
+          "releaseTests": 31,
+          "releaseWorkflow": "passed",
+          "releaseWorkflowRun": 37165754942,
+          "releaseAssetsReconciled": true
+        }
+      },
+      "readiness": {
+        "status": "pre-submission",
+        "publicTransportVerified": true,
+        "authenticatedToolScanVerified": false,
+        "oauthConsentFlowVerified": false,
+        "reviewCasesExecuted": false,
+        "submissionReady": false,
+        "publicReadinessRun": 37165754942,
+        "note": "The published public-only readiness receipt and all five release assets were reconciled by workflow 37165754942. Authenticated catalog, OAuth consent, reviewer cases and directory approval have not been verified for this release."
+      }
+    },
     {
       "package": {
         "name": "freelaw-studio-agent-plugin",
@@ -60,7 +89,7 @@
     }
   ],
   "candidate": {
-    "version": "0.4.3",
+    "version": "0.4.4",
     "status": "prepared"
   }
 }
