@@ -1,6 +1,6 @@
 {
   "name": "freelaw-studio",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "Freelaw Studio guidance for client-facing legal workflows through the public API and MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -102,7 +102,7 @@
         }
       },
       "publication": {
-        "release_notes": "0.4.3: guide petition, delegation, jurisprudence, task and publication workflows; preserve server-reported cost, quota and approval continuations; refresh the packaged brand icon. Directory submission remains manual and opt-in.",
+        "release_notes": "0.4.4: declare host-managed OAuth DCR and office scopes for OpenAI MCP authentication. Directory approval remains a separate provider decision.",
         "translations": {
           "pt-BR": {
             "subtitle": "Rotina jurídica do escritório",

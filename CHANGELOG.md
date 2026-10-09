@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4 - 2026-10-09
+
+- Declare credential-free OAuth DCR and office scopes for OpenAI MCP authentication.
+- Reject missing authentication declarations, auth downgrades and scope drift.
+- Preserve the published 0.4.3 receipt and immutable assets while preparing this candidate.
+
 ## 0.4.3 - 2026-10-09
 
 - Guide petition, delegation, jurisprudence, task and publication workflows

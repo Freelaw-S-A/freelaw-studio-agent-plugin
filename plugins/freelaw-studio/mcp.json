@@ -3,7 +3,18 @@
   "mcpServers": {
     "freelaw-studio": {
       "type": "streamable-http",
-      "url": "https://app.freelaw.ai/api/agent/mcp"
+      "url": "https://app.freelaw.ai/api/agent/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": {
+              "mode": "dcr"
+            },
+            "baseScopes": ["office:read", "office:write"]
+          }
+        }
+      }
     }
   }
 }

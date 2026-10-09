@@ -55,6 +55,9 @@ export function validateRelease(root = process.cwd()) {
   }
   assert(!('test_credentials' in review) && !('reviewer_instructions' in review));
   packagePath(plugin, portable.extensions['com.openai'].onboardingSkill);
+  assert.deepEqual(json('plugins/freelaw-studio/mcp.json').mcpServers['freelaw-studio'].extensions?.['com.openai']?.auth, {
+    type: 'oauth', client: { mode: 'dcr' }, baseScopes: ['office:read', 'office:write'],
+  }, 'OpenAI MCP must declare credential-free OAuth DCR with office scopes');
   for (const file of ['plugins/freelaw-studio/mcp.json', 'plugins/freelaw-studio/.mcp.json', 'plugins/freelaw-studio/gemini-extension.json', 'gemini-extension.json']) {
     const servers = json(file).mcpServers;
     assert.deepEqual(Object.keys(servers), ['freelaw-studio']);
