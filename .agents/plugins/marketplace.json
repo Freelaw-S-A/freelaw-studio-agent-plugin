@@ -5,7 +5,7 @@
   },
   "plugins": [
     {
-      "name": "freelaw-studio",
+      "name": "freelaw-studio-openai",
       "source": {
         "source": "local",
         "path": "./plugins/freelaw-studio"

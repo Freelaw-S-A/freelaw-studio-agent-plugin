@@ -66,7 +66,14 @@ export function validateRelease(root = process.cwd()) {
   }
   const marketplace = json('.claude-plugin/marketplace.json');
   assert.equal(marketplace.plugins[0].source, './plugins/freelaw-studio');
-  assert.equal(marketplace.plugins[0].name, portable.name);
+  assert.equal(portable.name, 'freelaw-studio-openai', 'OpenAI plugin identity drift');
+  assert.equal(codex.name, portable.name, 'OpenAI host identity drift');
+  assert.equal(json('.agents/plugins/marketplace.json').plugins[0].name, codex.name, 'Codex marketplace identity drift');
+  assert.equal(marketplace.plugins[0].name, json('plugins/freelaw-studio/.claude-plugin/plugin.json').name);
+  assert.equal(marketplace.plugins[0].name, 'freelaw-studio', 'Claude plugin identity drift');
+  assert.equal(json('plugins/freelaw-studio/.grok-plugin/plugin.json').name, 'freelaw-studio', 'Grok plugin identity drift');
+  const recording = new URL(review.demo_recording_url);
+  assert(recording.protocol === 'https:' && !recording.username && !recording.password, 'Invalid demo recording URL');
   assert(existsSync(resolve(plugin, 'LICENSE')));
   for (const forbidden of ['hooks', 'hooks.json', '.env', '.app.json']) assert(!existsSync(resolve(plugin, forbidden)), `Forbidden release component: ${forbidden}`);
   return { version, plugin: portable.name, positiveCases: 5, negativeCases: 3 };

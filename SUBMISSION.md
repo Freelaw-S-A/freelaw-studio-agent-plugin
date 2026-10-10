@@ -7,8 +7,8 @@ credentials or customer records.
 
 ## Release and evidence
 
-Published package: **0.4.3** ([immutable release](https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.3)). Candidate **0.4.4** is prepared for validation; it is not tagged, published or submitted. Directory submission remains pending. Build the candidate artifact with `bun run build`:
-`dist/freelaw-studio-0.4.4.zip`. Its root contains `plugin.json`, `mcp.json`, the
+Published package: **0.4.4** ([immutable release](https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.4)). Candidate **0.4.5** is prepared for validation; it is not tagged, published or submitted. Directory submission remains pending. Build the candidate artifact with `bun run build`:
+`dist/freelaw-studio-0.4.5.zip`. Its root contains `plugin.json`, `mcp.json`, the
 host manifests, skills, commands, brand icon and license. Pin the public
 repository at the reviewed merge SHA for marketplace installs.
 
