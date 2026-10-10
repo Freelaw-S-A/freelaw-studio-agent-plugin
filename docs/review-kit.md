@@ -2,7 +2,7 @@
 
 This opt-in kit validates fixture plans and runs the eight cases published in
 the plugin review contract. It lives outside the installable package. Candidate
-0.4.4 does not change the published 0.4.3 release assets or provider submission
+0.4.5 does not change the published 0.4.4 release assets or provider submission
 facts.
 
 Copy `docs/review-fixtures.example.json` for each campaign. Update its campaign,

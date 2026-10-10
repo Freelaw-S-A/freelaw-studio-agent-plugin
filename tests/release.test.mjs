@@ -17,7 +17,7 @@ afterEach(() => { for (const path of temporary.splice(0)) rmSync(path, { recursi
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'freelaw-plugin-test-'));
   temporary.push(root);
-  for (const path of ['package.json', 'gemini-extension.json', '.claude-plugin', 'distribution', 'plugins']) cpSync(resolve(path), join(root, path), { recursive: true });
+  for (const path of ['package.json', 'gemini-extension.json', '.agents', '.claude-plugin', 'distribution', 'plugins']) cpSync(resolve(path), join(root, path), { recursive: true });
   return root;
 }
 function alter(root, file, update) {
@@ -29,41 +29,51 @@ function alter(root, file, update) {
 
 describe('portable plugin release', () => {
   test('validates the shipped manifests and reviewer case counts', () => {
-    expect(validateRelease()).toMatchObject({ version: '0.4.4', positiveCases: 5, negativeCases: 3 });
+    expect(validateRelease()).toMatchObject({ version: '0.4.5', positiveCases: 5, negativeCases: 3 });
   });
   test('records verified publication while preserving the historical receipt', () => {
     const root = fixture();
     const release = JSON.parse(readFileSync(join(root, 'distribution/release.json')));
-    expect(release.package.version).toBe('0.4.3');
-    expect(release.package.releaseUrl).toEndWith('/v0.4.3');
-    expect(release.package.releaseCommit).toBe('97d3fdcc33633d0337d0abd0b690969fef421244');
-    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 37958645378, releaseAssetsReconciled: true });
-    expect(release.history[1].package.version).toBe('0.4.1');
-    expect(release.history[1].package.releaseUrl).toEndWith('/v0.4.1');
-    expect(release.history[1].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
-    expect(release.history[1].readiness.authenticatedReadinessFailure).toBe('credential-missing');
-    expect(release.history[0].package.version).toBe('0.4.2');
-    expect(release.history[0].package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
-    expect(release.candidate).toEqual({ version: '0.4.4', status: 'prepared' });
+    expect(release.package.version).toBe('0.4.4');
+    expect(release.package.releaseUrl).toEndWith('/v0.4.4');
+    expect(release.package.releaseCommit).toBe('967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a');
+    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 37987890203, releaseAssetsReconciled: true });
+    expect(release.history[2].package.version).toBe('0.4.1');
+    expect(release.history[2].package.releaseUrl).toEndWith('/v0.4.1');
+    expect(release.history[2].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
+    expect(release.history[2].readiness.authenticatedReadinessFailure).toBe('credential-missing');
+    expect(release.history[1].package.version).toBe('0.4.2');
+    expect(release.history[1].package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
+    expect(release.candidate).toEqual({ version: '0.4.5', status: 'prepared' });
     expect(release.readiness).toMatchObject({ authenticatedToolScanVerified: false, oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false });
   });
   test('rejects false candidate publication and nonadvancing preparation', () => {
     const root = fixture();
     alter(root, 'distribution/release.json', value => {
       value.package = value.history[0].package;
-      value.candidate = { version: '0.4.4', status: 'prepared' };
+      value.candidate = { version: '0.4.5', status: 'prepared' };
     });
     alter(root, 'distribution/release.json', value => { value.candidate.status = 'published'; });
     expect(() => validateRelease(root)).toThrow('Candidate cannot claim publication');
-    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.5'; });
+    alter(root, 'distribution/release.json', value => { value.candidate.status = 'prepared'; value.candidate.version = '0.4.6'; });
     expect(() => validateRelease(root)).toThrow('Distribution candidate version drift');
-    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.4'; value.package.version = '0.4.4'; });
+    alter(root, 'distribution/release.json', value => { value.candidate.version = '0.4.5'; value.package.version = '0.4.5'; });
     expect(() => validateRelease(root)).toThrow('Candidate must advance');
   });
   test('rejects version drift across hosts', () => {
     const root = fixture();
     alter(root, 'plugins/freelaw-studio/.claude-plugin/plugin.json', (value) => { value.version = '0.3.0'; });
     expect(() => validateRelease(root)).toThrow('Release version drift');
+  });
+  test('preserves host identities and rejects unsafe reviewer recording URLs', () => {
+    const root = fixture();
+    alter(root, 'plugins/freelaw-studio/.codex-plugin/plugin.json', value => { value.name = 'freelaw-studio'; });
+    expect(() => validateRelease(root)).toThrow('OpenAI host identity drift');
+    alter(root, 'plugins/freelaw-studio/.codex-plugin/plugin.json', value => { value.name = 'freelaw-studio-openai'; });
+    for (const file of ['plugins/freelaw-studio/plugin.json', 'plugins/freelaw-studio/.codex-plugin/plugin.json']) {
+      alter(root, file, value => { value.extensions['com.openai'].review.demo_recording_url = 'https://user:password@example.com/video'; });
+    }
+    expect(() => validateRelease(root)).toThrow('Invalid demo recording URL');
   });
   test('ships Claude directory links and a valid square PNG icon', () => {
     const root = fixture();
@@ -253,23 +263,23 @@ describe('release automation', () => {
       return sha;
     };
     expect(verifyReleaseContext({
-      tag: 'v0.4.4', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
-    })).toMatchObject({ version: '0.4.4', tag: 'v0.4.4', head: sha, mainAncestorVerified: true });
+      tag: 'v0.4.5', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
+    })).toMatchObject({ version: '0.4.5', tag: 'v0.4.5', head: sha, mainAncestorVerified: true });
     expect(calls).toContain(`merge-base --is-ancestor ${sha} origin/main`);
     expect(() => verifyReleaseContext({
       tag: 'v0.4.0', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/main', git,
     })).toThrow('Tag must match package version');
     expect(() => verifyReleaseContext({
-      tag: 'v0.4.4', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
+      tag: 'v0.4.5', eventName: 'workflow_dispatch', sourceRef: 'refs/heads/feature', git,
     })).toThrow('dispatched from main');
   });
 
   test('builds a provider handoff without claiming authenticated review or approval', () => {
     const sha = 'c'.repeat(40);
     const handoff = buildSubmissionHandoff({
-      tag: 'v0.4.4',
+      tag: 'v0.4.5',
       sha,
-      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.4',
+      releaseUrl: 'https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.5',
       checkedAt: '2026-09-30T00:00:00.000Z',
     });
     expect(handoff.review).toMatchObject({

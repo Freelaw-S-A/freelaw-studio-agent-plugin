@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.5 - 2026-10-09
+
+- Use the canonical OpenAI-specific plugin identity while preserving Claude and Grok identities.
+- Link the real synthetic reviewer recording without modifying historical release assets.
+- Use client name lookup and record UUIDs without requesting government identifiers.
+- Preserve the verified 0.4.4 publication receipt; privacy checks and reviewer execution remain pending.
+
 ## 0.4.4 - 2026-10-09
 
 - Declare credential-free OAuth DCR and office scopes for OpenAI MCP authentication.

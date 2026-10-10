@@ -1,6 +1,6 @@
 {
-  "name": "freelaw-studio",
-  "version": "0.4.4",
+  "name": "freelaw-studio-openai",
+  "version": "0.4.5",
   "description": "Freelaw Studio guidance for client-facing legal workflows through the public API and MCP.",
   "author": {
     "name": "Freelaw S.A.",
@@ -99,10 +99,11 @@
               "expected_behavior": "Do not retrieve, request or disclose credentials. Explain that host-managed authentication stays outside chat."
             }
           ]
-        }
+        },
+        "demo_recording_url": "https://github.com/user-attachments/assets/70f81568-1c18-4319-8245-a2edb378c7bc"
       },
       "publication": {
-        "release_notes": "0.4.4: declare host-managed OAuth DCR and office scopes for OpenAI MCP authentication. Directory approval remains a separate provider decision.",
+        "release_notes": "0.4.5: use the canonical OpenAI plugin identity and link the recorded synthetic reviewer demonstration. Dedicated reviewer execution, MCP privacy verification and directory approval remain separate requirements.",
         "translations": {
           "pt-BR": {
             "subtitle": "Rotina jurídica do escritório",
