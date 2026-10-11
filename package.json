@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.4.5",
-  "packageManager": "bun@1.4.2",
+  "packageManager": "bun@1.4.3",
   "scripts": {
     "test": "bun test tests",
     "validate": "bun scripts/validate-release.mjs && bun scripts/validate-cicd.mjs",
