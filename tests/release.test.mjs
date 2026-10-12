@@ -34,17 +34,20 @@ describe('portable plugin release', () => {
   test('records verified publication while preserving the historical receipt', () => {
     const root = fixture();
     const release = JSON.parse(readFileSync(join(root, 'distribution/release.json')));
-    expect(release.package.version).toBe('0.4.4');
-    expect(release.package.releaseUrl).toEndWith('/v0.4.4');
-    expect(release.package.releaseCommit).toBe('967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a');
-    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 37987890203, releaseAssetsReconciled: true });
-    expect(release.history[2].package.version).toBe('0.4.1');
-    expect(release.history[2].package.releaseUrl).toEndWith('/v0.4.1');
-    expect(release.history[2].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
-    expect(release.history[2].readiness.authenticatedReadinessFailure).toBe('credential-missing');
-    expect(release.history[1].package.version).toBe('0.4.2');
-    expect(release.history[1].package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
-    expect(release.candidate).toEqual({ version: '0.4.5', status: 'prepared' });
+    expect(release.package.version).toBe('0.4.5');
+    expect(release.package.releaseUrl).toEndWith('/v0.4.5');
+    expect(release.package.releaseCommit).toBe('7a3cb39fd1cb6a1a1bd3fa2f80c75d6a2651aefe');
+    expect(release.package.publishedAt).toBe('2026-10-10T01:46:27Z');
+    expect(release.package.validation).toMatchObject({ releaseWorkflow: 'passed', releaseWorkflowRun: 38014465858, releaseAssetsReconciled: true });
+    expect(release.history[0].package.version).toBe('0.4.4');
+    expect(release.history[0].package.releaseCommit).toBe('967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a');
+    expect(release.history[3].package.version).toBe('0.4.1');
+    expect(release.history[3].package.releaseUrl).toEndWith('/v0.4.1');
+    expect(release.history[3].package.publicSourceSnapshot).toBe('4ef1bca2509fd34f1840ee1501955f94a82f83e2');
+    expect(release.history[3].readiness.authenticatedReadinessFailure).toBe('credential-missing');
+    expect(release.history[2].package.version).toBe('0.4.2');
+    expect(release.history[2].package.releaseCommit).toBe('835f9e74a5d9be475742bc3070de522d5a58bedd');
+    expect(release.candidate).toBeUndefined();
     expect(release.readiness).toMatchObject({ authenticatedToolScanVerified: false, oauthConsentFlowVerified: false, reviewCasesExecuted: false, submissionReady: false });
   });
   test('rejects false candidate publication and nonadvancing preparation', () => {
