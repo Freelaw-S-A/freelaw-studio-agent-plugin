@@ -8,13 +8,13 @@
       "installationStatus": "remote-mcp-and-package-available",
       "installationLabel": "MCP e pacote disponíveis",
       "submissionStatus": "manual_required",
-      "directoryStatus": "not-submitted",
-      "directoryLabel": "Não submetido",
+      "directoryStatus": "not-verified",
+      "directoryLabel": "Estado atual não verificado",
       "authenticatedValidation": "not-run",
       "validationLabel": "Conta de revisão pendente",
       "automation": "release_handoff_only",
       "officialSource": "https://developers.openai.com/plugins/deploy/submission",
-      "reason": "The remote MCP and public ZIP are available. OpenAI requires dashboard upload, MCP and domain verification, authenticated reviewer cases, review and a separate publish action."
+      "reason": "The remote MCP and immutable v0.4.5 ZIP are available. The current OpenAI directory state requires a fresh authenticated portal receipt; no submission, approval or publication is asserted by this public document."
     },
     {
       "id": "claude-anthropic",
@@ -23,13 +23,13 @@
       "installationStatus": "marketplace-and-remote-mcp-available",
       "installationLabel": "Marketplace e MCP disponíveis",
       "submissionStatus": "manual_required",
-      "directoryStatus": "not-submitted",
-      "directoryLabel": "Não submetido",
+      "directoryStatus": "not-verified",
+      "directoryLabel": "Estado atual não verificado",
       "authenticatedValidation": "not-run",
       "validationLabel": "Conta de revisão pendente",
       "automation": "release_handoff_only",
       "officialSource": "https://claude.com/docs/directory/publish",
-      "reason": "Claude Code can install the public marketplace and Claude can connect to the remote MCP. Anthropic requires separate connector and plugin-bundle submissions for a listed product."
+      "reason": "Claude Code can install the public marketplace and Claude can connect to the remote MCP. The current Anthropic directory state requires a fresh authenticated portal receipt; no submission, approval or publication is asserted by this public document."
     },
     {
       "id": "gemini-google",
@@ -53,13 +53,18 @@
       "installationStatus": "local-marketplace-available",
       "installationLabel": "Marketplace próprio disponível",
       "submissionStatus": "pull_request_supported",
-      "directoryStatus": "not-submitted",
-      "directoryLabel": "PR xAI não aberto",
+      "directoryStatus": "submitted",
+      "directoryLabel": "PR #1242 aberto na xAI",
       "authenticatedValidation": "not-run",
       "validationLabel": "Conexão autenticada pendente",
       "automation": "manual_workflow_with_dedicated_token",
       "officialSource": "https://github.com/xai-org/plugin-marketplace",
-      "reason": "Grok Build can use the public repository marketplace. The official xAI catalog requires a pull request with the remote source pinned to a full commit SHA; no merged catalog PR is recorded."
+      "reason": "The official xAI catalog pull request #1242 is open and pins the public plugin source for v0.4.3. It is not merged and does not evidence approval or catalog publication of v0.4.5.",
+      "directoryEvidence": {
+        "receiptUrl": "https://github.com/xai-org/plugin-marketplace/pull/1242",
+        "sourceSha": "ec594a01cfdd561cb7af33f2573261d6056429e8",
+        "recordedAt": "2026-10-06T13:06:21Z"
+      }
     },
     {
       "id": "meta-muse-spark",

@@ -2,17 +2,18 @@
   "schemaVersion": "1.0.0",
   "package": {
     "name": "freelaw-studio-agent-plugin",
-    "version": "0.4.4",
+    "version": "0.4.5",
     "status": "public-package-available",
     "pluginUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
-    "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.4",
-    "releaseCommit": "967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a",
-    "publicSourceSnapshot": "967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a",
-    "mergedPullRequest": 16,
+    "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.5",
+    "releaseCommit": "7a3cb39fd1cb6a1a1bd3fa2f80c75d6a2651aefe",
+    "publicSourceSnapshot": "7a3cb39fd1cb6a1a1bd3fa2f80c75d6a2651aefe",
+    "mergedPullRequest": 17,
+    "publishedAt": "2026-10-10T01:46:27Z",
     "validation": {
-      "releaseTests": 74,
+      "releaseTests": 75,
       "releaseWorkflow": "passed",
-      "releaseWorkflowRun": 37987890203,
+      "releaseWorkflowRun": 38014465858,
       "releaseAssetsReconciled": true
     }
   },
@@ -23,10 +24,38 @@
     "oauthConsentFlowVerified": false,
     "reviewCasesExecuted": false,
     "submissionReady": false,
-    "publicReadinessRun": 37987890203,
-    "note": "All five immutable v0.4.4 release assets and public transport were verified by workflow 37987890203. OAuth was authorized in the official OpenAI draft and a synthetic demonstration was recorded; dedicated reviewer execution and MCP privacy verification remain pending. No directory approval is asserted."
+    "publicReadinessRun": 38079704906,
+    "note": "All five immutable v0.4.5 release assets and the public MCP transport were verified for source 7a3cb39fd1cb6a1a1bd3fa2f80c75d6a2651aefe. Authenticated reviewer identity, governed write execution and directory decisions remain unverified; no approval or publication in a provider directory is asserted."
   },
   "history": [
+    {
+      "package": {
+        "name": "freelaw-studio-agent-plugin",
+        "version": "0.4.4",
+        "status": "public-package-available",
+        "pluginUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin",
+        "releaseUrl": "https://github.com/Freelaw-S-A/freelaw-studio-agent-plugin/releases/tag/v0.4.4",
+        "releaseCommit": "967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a",
+        "publicSourceSnapshot": "967aa75fe7fcb8ce5dfda9b7f65cbdc68a034d3a",
+        "mergedPullRequest": 16,
+        "validation": {
+          "releaseTests": 74,
+          "releaseWorkflow": "passed",
+          "releaseWorkflowRun": 37987890203,
+          "releaseAssetsReconciled": true
+        }
+      },
+      "readiness": {
+        "status": "pre-submission",
+        "publicTransportVerified": true,
+        "authenticatedToolScanVerified": false,
+        "oauthConsentFlowVerified": false,
+        "reviewCasesExecuted": false,
+        "submissionReady": false,
+        "publicReadinessRun": 37987890203,
+        "note": "All five immutable v0.4.4 release assets and public transport were verified by workflow 37987890203. OAuth was authorized in the official OpenAI draft and a synthetic demonstration was recorded; dedicated reviewer execution and MCP privacy verification remain pending. No directory approval is asserted."
+      }
+    },
     {
       "package": {
         "name": "freelaw-studio-agent-plugin",
@@ -115,9 +144,5 @@
         "note": "The public MCP transport and OAuth challenge passed. The reviewer credential, authenticated catalog scan, consent walkthrough and reviewer cases remain pending."
       }
     }
-  ],
-  "candidate": {
-    "version": "0.4.5",
-    "status": "prepared"
-  }
+  ]
 }
